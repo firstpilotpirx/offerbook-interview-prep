@@ -1,0 +1,198 @@
+# What's new — for the person and for the upgrade module.
+# Each version: notes (what the person will see, 1–4 lines, ru and en),
+# actions — what to do with their prep when updating to this version:
+#   rebuild_page        rebuild the page (new template)
+#   ask:<question>      ask a new wizard question with buttons (if there is no answer yet)
+#   offer:<what>        offer it as a button, don't do it silently (theory, rescore_words, profile_topics)
+#   profile_topics      the profile changed — show the new topics and offer to add them (outline, mode update)
+# data_version — data format version after this version (tools/migrate.py).
+
+- version: "0.13.4"
+  date: 2026-10-01
+  data_version: 4
+  notes:
+    ru:
+      - "README: как поделиться плагином и как обновляться. Пример убран от реальных деталей автора."
+    en:
+      - "README: how to share the plugin and how to update. The example no longer carries the author's real details."
+  actions: []
+
+- version: "0.13.3"
+  date: 2026-10-01
+  data_version: 4
+  notes:
+    ru:
+      - "Треки подготовки: теория, задачи, system design, софт-скиллы и слова — у каждого своё кольцо на сегодня, неделя, норма в день и прогноз. Вверху плана — дата готовности по самому медленному треку вместо общего процента; тренажёр слов ниже. Клик по треку показывает только его темы."
+    en:
+      - "Study tracks: theory, coding problems, system design, soft skills and words — each with its own ring for today, the week, a daily goal and a forecast. The top of the plan shows the readiness date of the slowest track instead of an overall percent; the word trainer sits below. Clicking a track shows only its topics."
+  actions: [rebuild_page]
+
+- version: "0.13.2"
+  date: 2026-10-01
+  data_version: 4
+  notes:
+    ru:
+      - "Дневная норма новых слов (по умолчанию 20, меняется ползунком): кольцо на сегодня, семь колец за неделю и серия дней с выполненной нормой. «Учить по важности» берёт не больше нормы новых слов в день, прогноз считается по норме."
+    en:
+      - "Daily goal of new words (20 by default, adjustable with a slider): a ring for today, seven rings for the week and a streak of days with the goal met. \"Learn by importance\" takes no more new words a day than the goal, and the forecast uses the goal."
+  actions: [rebuild_page]
+
+- version: "0.13.1"
+  date: 2026-10-01
+  data_version: 4
+  notes:
+    ru:
+      - "Тренажёр: общий прогресс и прогресс каждой колоды в процентах, темп (новых слов в день) и прогноз — через сколько дней начнёте и к какой дате выучите каждую колоду и все слова."
+      - "Исправлен прогноз «сколько дней осталось»: отметки без даты или с датой в другом формате больше не превращают его в тысячи дней."
+    en:
+      - "Trainer: overall and per-deck progress in percent, pace (new words a day) and a forecast — in how many days you start and by which date you learn each deck and all words."
+      - "Fixed the \"days left\" forecast: marks without a date or with a date in another format no longer turn it into thousands of days."
+  actions: [rebuild_page]
+
+- version: "0.13.0"
+  date: 2026-10-01
+  data_version: 4
+  notes:
+    ru:
+      - "Языки курса: при старте можно отметить один или несколько. Материалы пишутся только на выбранных — один язык, значит без дублей и лишнего расхода токенов."
+      - "Переключатель языка на странице показывает только выбранные языки; при одном языке его нет."
+      - "Исправлено: разделы плана снова раскрываются (в том числе в Safari), а старая вкладка больше не может затереть прогресс."
+      - "Вкладка «Собесы»: каждая компания — своя сворачиваемая карточка с картой этапов (пройден, провален, назначен, впереди), прогресс-баром и итогом — в процессе, успех или неудача."
+      - "В открытом материале — кнопка «Скопировать»: тема, описание и весь урок одним текстом, чтобы вставить в новый чат и разобрать."
+      - "Задачи по system design — теперь план разговора, а не готовое решение: функциональные и нефункциональные требования, что уточнить у интервьюера, на что обратить внимание при реализации. Старые задачи кнопка «Углубить материалы» перепишет в новом формате."
+    en:
+      - "Course languages: pick one or several at the start. Materials are written only in the chosen ones — one language means no duplicates and no wasted tokens."
+      - "The page language switcher shows only the chosen languages; with one language there is none."
+      - "Fixed: plan sections expand again (Safari included), and an old tab can no longer overwrite your progress."
+      - "Interviews tab: each company is its own collapsible card with a stage map (passed, failed, scheduled, ahead), a progress bar and the outcome — in progress, success or failure."
+      - "An open lesson has a Copy button: the topic, its summary and the whole lesson as one text, ready to paste into a new chat."
+      - "System design problems are now a plan for the conversation, not a worked solution: functional and non-functional requirements, what to ask the interviewer, what to watch for in the implementation. \"Deepen materials\" rewrites old ones in the new format."
+  actions: [rebuild_page]
+
+- version: "0.12.3"
+  date: 2026-10-01
+  data_version: 4
+  notes:
+    ru:
+      - "Small fixes and improvements"
+    en:
+      - "Small fixes and improvements"
+  actions: []
+
+- version: "0.12.2"
+  date: 2026-10-01
+  data_version: 3
+  notes:
+    ru:
+      - "Каждая версия теперь публикуется как релиз на GitHub — с описанием изменений и zip-файлом плагина."
+    en:
+      - "Every version is now published as a GitHub release with release notes and the plugin zip."
+  actions: []
+
+- version: "0.12.1"
+  date: 2026-10-01
+  data_version: 3
+  notes:
+    ru:
+      - "Лицензия — MIT. Добавлен скрипт релиза; README и описания целиком на английском."
+    en:
+      - "License: MIT. Added a release script; README and descriptions are fully in English."
+  actions: []
+
+- version: "0.12.0"
+  date: 2026-10-01
+  data_version: 3
+  notes:
+    ru:
+      - "Все файлы плагина — на английском, чтобы их читали и правили люди по всему миру. Ваши материалы и страница — по-прежнему на выбранном языке."
+      - "Лицензия — MIT. Публичный репозиторий: github.com/firstpilotpirx/offerbook-interview-prep."
+    en:
+      - "All plugin files are now in English so anyone can read and contribute. Your materials and page stay in your chosen language."
+      - "License: MIT. Public repository: github.com/firstpilotpirx/offerbook-interview-prep."
+  actions: [rebuild_page]
+
+- version: "0.11.0"
+  date: 2026-10-01
+  data_version: 3
+  notes:
+    ru:
+      - "Новое имя: Offerbook (offerbook-interview-prep). Команды: /offerbook-start, /offerbook-next, /offerbook-update."
+      - "Старый плагин prep установщик убирает сам; папка подготовки и прогресс — те же."
+    en:
+      - "New name: Offerbook (offerbook-interview-prep). Commands: /offerbook-start, /offerbook-next, /offerbook-update."
+      - "The installer removes the old prep plugin; your prep folder and progress stay the same."
+  actions: [rebuild_page]
+
+- version: "0.10.0"
+  date: 2026-10-01
+  data_version: 3
+  notes:
+    ru:
+      - "Все записи в данные подготовки — скриптами: анкета, мастер, компании, словарь, каркасы уроков. Меньше случайных ошибок, одинаково от запуска к запуску."
+      - "Шапка страницы запоминается между сборками."
+    en:
+      - "All writes to your prep data go through scripts: answers, wizard, companies, vocabulary, lesson skeletons. Fewer random errors, the same every run."
+      - "The page header is remembered between builds."
+  actions: [rebuild_page]
+
+- version: "0.9.0"
+  date: 2026-10-01
+  data_version: 3
+  notes:
+    ru:
+      - "Обновление плагина: «что нового», бэкап и перенос данных без потери прогресса."
+      - "Бэкапы подготовки в prep/backups — можно откатиться одной командой."
+      - "Тренажёр спрашивает каждое слово с четырёх сторон вперемешку: выбрать английское, выбрать перевод, вспомнить английское, вспомнить перевод."
+    en:
+      - "Plugin updates: what's new, a backup and data migration with no lost progress."
+      - "Backups in prep/backups — roll back with one command."
+      - "The trainer asks each word four ways, mixed: pick the English, pick the translation, recall the English, recall the translation."
+  actions: [rebuild_page]
+
+- version: "0.8.0"
+  date: 2026-10-01
+  data_version: 3
+  notes:
+    ru:
+      - "Язык объяснений выбирается первым шагом: английский, русский, немецкий — любой."
+      - "Переключатель на странице: ваш язык ↔ английский."
+    en:
+      - "Pick the explanation language first: English, Russian, German — any."
+      - "Page switch: your language ↔ English."
+  actions: [rebuild_page, "ask:explain-language"]
+
+- version: "0.7.0"
+  date: 2026-10-01
+  data_version: 2
+  notes:
+    ru:
+      - "Тренажёр как в рабочем портале: «Учить по важности», колоды «Слова 1–50», «51–100»…"
+      - "Методика словаря: частотный анализ своих материалов, круги проверки, ранжирование."
+    en:
+      - "Trainer like the working portal: Learn by importance, decks Words 1–50, 51–100…"
+      - "Vocabulary method: frequency of your own materials, check rounds, ranking."
+  actions: [rebuild_page, "offer:rescore_words"]
+
+- version: "0.6.0"
+  date: 2026-10-01
+  data_version: 2
+  notes:
+    ru:
+      - "Мастер спрашивает, тренировать ли английский."
+      - "Быстрая проверка «знаю» по полосам частотности."
+    en:
+      - "The wizard asks whether to train English."
+      - "Quick known-word check by frequency bands."
+  actions: [rebuild_page, "ask:english-train"]
+
+- version: "0.5.0"
+  date: 2026-09-30
+  data_version: 1
+  notes:
+    ru:
+      - "Новый вид страницы: шапка со статистикой, фильтры, оглавление, толстые разделы."
+      - "Раздел «Фундамент» и system design с расчётами на салфетке."
+    en:
+      - "New page look: stats header, filters, table of contents, bold sections."
+      - "Fundamentals section and system design with back-of-envelope estimates."
+  actions: [rebuild_page, "offer:theory", profile_topics]

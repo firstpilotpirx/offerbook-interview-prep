@@ -1,0 +1,12 @@
+profile: backend
+profile_version: 5
+answers:
+  level: senior
+  language: java
+  languages: [ru]
+  explain-language: ru
+  interview-language: english
+  english-train: full
+  english-level: b2
+  databases: [postgresql, redis]
+  messaging: [kafka]

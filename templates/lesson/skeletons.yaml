@@ -1,0 +1,24 @@
+# Skeletons of material blocks — the standard from references/material-format.md.
+# content.py scaffold inserts the skeleton of the right kind in the explanation language;
+# for a language not listed here, en is used and the agent translates the headings
+# (same meaning: In short / How it works / Interview Q&A / Check yourself).
+# Q&A — only as bullets "- **Question?** answer": that's how they collapse on the page.
+lesson:
+  ru: ["Суть", "Как устроено", "Где ломается и как чинят", "Вопросы на интервью", "Проверь себя"]
+  en: ["In short", "How it works", "Where it breaks", "Interview Q&A", "Check yourself"]
+  en-companion: ["In short", "Interview Q&A"]
+case:
+  ru: ["Функциональные требования", "Нефункциональные требования", "Что уточнить у интервьюера", "На что обратить внимание при реализации"]
+  en: ["Functional requirements", "Non-functional requirements", "What to ask the interviewer", "What to watch for in the implementation"]
+  en-companion: ["Functional requirements", "Non-functional requirements", "What to ask the interviewer", "What to watch for in the implementation"]
+story:
+  ru: ["Ситуация", "Задача", "Действия", "Результат", "Что спросят дальше"]
+  en: ["Situation", "Task", "Action", "Result", "Follow-up questions"]
+  en-companion: ["Situation", "Task", "Action", "Result"]
+answer:
+  ru: ["Ответ вслух", "Короткая версия"]
+  en: ["Say it", "Short version"]
+  en-companion: ["Say it"]
+qa_example:
+  ru: "- **Вопрос, как его зададут?** Ответ своими словами, 2–4 предложения."
+  en: "- **The question, as they will ask it?** Your answer, 2–4 sentences."
