@@ -1,0 +1,68 @@
+profile: backend
+profile_version: 2
+built_from: prep/answers.yaml
+built: 2026-09-30
+nodes:
+- id: tech
+  title: Техническое интервью
+  title_en: Technical interview
+  kind: stage
+  order: 4
+  children:
+  - id: tech.frameworks
+    title: Фреймворки
+    title_en: Frameworks
+    priority: 1
+    origin: profile
+    children:
+    - id: tech.frameworks.transactional
+      title: '@Transactional изнутри'
+      title_en: '@Transactional internals'
+      summary: прокси, propagation, self-invocation, rollback rules
+      summary_en: proxies, propagation, self-invocation, rollback rules
+      priority: 1
+      origin: vacancy
+  - id: tech.services
+    title: Взаимодействие сервисов
+    title_en: Service communication
+    priority: 1
+    origin: profile
+    children:
+    - id: tech.services.messaging
+      title: Очереди и брокеры
+      title_en: Queues and brokers
+      priority: 1
+      origin: answer
+    - id: tech.services.consistency
+      title: Согласованность данных
+      title_en: Data consistency
+      priority: 1
+      origin: profile
+- id: stories
+  title: Мои системы и истории
+  title_en: My systems and stories
+  kind: cross
+  children:
+  - id: stories.indexer
+    title: Индексатор блокчейнов
+    title_en: Blockchain indexer
+    priority: 1
+    origin: resume
+- id: answers
+  title: Мои ответы
+  title_en: My answers
+  kind: cross
+  children:
+  - id: answers.pitch
+    title: Рассказ о себе
+    title_en: About me
+    priority: 1
+    origin: resume
+state:
+  done: []
+  skip: []
+order:
+- System design и свои системы
+- Java, Spring, многопоточность
+- Kafka, PostgreSQL
+- Остальное

@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prepare-interview-skills/words.schema.json",
+  "title": "English trainer deck",
+  "description": "prep/words.yaml. Every card must reference the person's own materials (used_in): there are no words \"out of thin air\" here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "built", "groups", "words"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "built": { "type": "string", "format": "date" },
+    "group_size": { "type": "integer", "minimum": 10, "default": 50 },
+    "groups": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Groups by importance, not by part of speech. 1 is the most needed",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["g", "title"],
+        "properties": {
+          "g": { "type": "integer", "minimum": 1 },
+          "title": { "type": "string" },
+          "title_en": { "type": "string" }
+        }
+      }
+    },
+    "words": { "type": "array", "items": { "$ref": "#/$defs/word" } },
+    "verbs": { "type": "array", "items": { "$ref": "#/$defs/verb" } },
+    "phrases": { "type": "array", "items": { "$ref": "#/$defs/phrase" } },
+    "answers": { "type": "array", "items": { "$ref": "#/$defs/answer" } }
+  },
+  "$defs": {
+    "cardId": {
+      "type": "string",
+      "pattern": "^[wvpa]:[a-z0-9][a-z0-9-]*$",
+      "description": "w: word, v: verb, p: phrase, a: ready answer. Slug of the English text, never changes: progress is tied to it"
+    },
+    "topicRef": { "type": "string", "pattern": "^[a-z][a-z0-9-]*(\\.[a-z0-9][a-z0-9-]*)*$" },
+    "example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "ru", "about"],
+      "properties": {
+        "en": { "type": "string", "minLength": 1 },
+        "ru": { "type": "string", "minLength": 1, "description": "Translation into the explanation language (explain-language); the field name is historical" },
+        "about": { "enum": ["system", "personal", "work"], "description": "about my systems / about my experience / about work in general" },
+        "from": { "$ref": "#/$defs/topicRef", "description": "id of the topic whose material the example comes from" }
+      }
+    },
+    "word": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "en", "ru", "g", "rank", "used_in", "ex"],
+      "properties": {
+        "id": { "$ref": "#/$defs/cardId" },
+        "en": { "type": "string", "minLength": 1 },
+        "ru": { "type": "string", "minLength": 1, "description": "Translation into the explanation language (explain-language); the field name is historical" },
+        "g": { "type": "integer", "minimum": 1 },
+        "rank": { "type": "integer", "minimum": 1, "description": "Position in the overall list by importance" },
+        "kind": { "enum": ["word", "phrase", "term"] },
+        "forms": { "type": "string", "description": "Forms or transcription: data /ˈdeɪtə/" },
+        "note": { "type": "string", "description": "False friends, prepositions, typical mistakes" },
+        "zipf": { "type": "number", "minimum": 0, "maximum": 8, "description": "English frequency (wordfreq): 5 — provide, 3 — idempotent" },
+        "band": { "type": "integer", "minimum": 1, "maximum": 4, "description": "Frequency band for the quick \"I know these\" check: 1 — common, 4 — rare words and terms" },
+        "src": { "type": "array", "items": { "type": "string" }, "description": "Where the word comes from: answers, stories, vacancy, topics" },
+        "round": { "type": "integer", "minimum": 1, "description": "Check round in which the word was added (words.py add)" },
+        "used_in": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "$ref": "#/$defs/topicRef" },
+          "description": "Where the person will say it: ids of topics, stories, answers"
+        },
+        "ex": { "type": "array", "minItems": 1, "maxItems": 3, "items": { "$ref": "#/$defs/example" } }
+      }
+    },
+    "verb": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "inf", "past", "pp", "ru", "ex"],
+      "properties": {
+        "id": { "$ref": "#/$defs/cardId" },
+        "inf": { "type": "string" },
+        "past": { "type": "string" },
+        "pp": { "type": "string" },
+        "ru": { "type": "string" },
+        "ex": { "type": "string", "description": "Example from one's own story" },
+        "used_in": { "type": "array", "items": { "$ref": "#/$defs/topicRef" } }
+      }
+    },
+    "phrase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "en", "ru"],
+      "properties": {
+        "id": { "$ref": "#/$defs/cardId" },
+        "en": { "type": "string" },
+        "ru": { "type": "string" },
+        "g": { "type": "integer", "minimum": 1 },
+        "word": { "$ref": "#/$defs/cardId", "description": "Card of the word this phrase belongs to" },
+        "from": { "$ref": "#/$defs/topicRef" }
+      }
+    },
+    "answer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "prompt_ru", "en", "from"],
+      "description": "Ready answer in parts: prompt in the explanation language → say it in English",
+      "properties": {
+        "id": { "$ref": "#/$defs/cardId" },
+        "prompt_ru": { "type": "string" },
+        "en": { "type": "string" },
+        "from": { "$ref": "#/$defs/topicRef" }
+      }
+    }
+  }
+}

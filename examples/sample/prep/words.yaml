@@ -1,0 +1,38 @@
+version: 1
+built: 2026-09-30
+group_size: 50
+groups:
+  - { g: 1, title: Самое нужное, title_en: Must know }
+words:
+  - id: "w:keep-up-with"
+    en: keep up with
+    ru: успевать за, не отставать от
+    g: 1
+    rank: 1
+    kind: phrase
+    zipf: 5.56
+    band: 1
+    src: [answers, stories, topics]
+    note: Всегда с «with». Не путать с keep up — «продолжать».
+    used_in: [tech.services.messaging, stories.indexer, answers.pitch]
+    ex:
+      - { en: The consumers could not keep up with the Kafka topic., ru: Консьюмеры не успевали за топиком Kafka., about: system, from: tech.services.messaging }
+      - { en: Our indexer keeps up with the chain head on all 9 networks., ru: Наш индексатор не отстаёт от головы цепи во всех 9 сетях., about: personal, from: stories.indexer }
+      - { en: I read tech blogs to keep up with new tools., ru: "Я читаю техблоги, чтобы следить за новыми инструментами.", about: work }
+  - id: "w:the-trade-off-is"
+    en: the trade-off is
+    ru: цена этого решения, минус в том, что
+    g: 1
+    rank: 2
+    kind: phrase
+    used_in: [tech.services.consistency]
+    ex:
+      - { en: Caching makes reads fast. The trade-off is stale data., ru: Кэш ускоряет чтение. Цена — устаревшие данные., about: system, from: tech.services.consistency }
+      - { en: We wait for more confirmations. The trade-off is higher latency., ru: Мы ждём больше подтверждений. Минус — выше задержка., about: personal, from: stories.indexer }
+      - { en: It is simple to build. The trade-off is less flexibility., ru: Это просто сделать. Минус — меньше гибкости., about: work }
+verbs:
+  - { id: "v:be", inf: be, past: was / were, pp: been, ru: быть, ex: I have been a backend developer for 12 years., used_in: [answers.pitch] }
+phrases:
+  - { id: "p:consumers-could-not-keep-up", en: The consumers could not keep up with the Kafka topic., ru: Консьюмеры не успевали за топиком Kafka., g: 1, word: "w:keep-up-with", from: tech.services.messaging }
+answers:
+  - { id: "a:pitch-1", prompt_ru: "Я backend-разработчик, 12 лет", en: I have been a backend developer for 12 years., from: answers.pitch }

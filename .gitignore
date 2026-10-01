@@ -1,0 +1,10 @@
+.venv/
+dist/
+__pycache__/
+_to_delete/
+.DS_Store
+Thumbs.db
+/*.png
+prep/.serve.json
+examples/sample/dist/
+examples/sample/prep/backups/

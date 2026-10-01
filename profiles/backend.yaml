@@ -1,0 +1,510 @@
+# Backend developer profile.
+# Inherits base: all stages and cross-cutting sections come from there.
+# Only the differences live here: stack questions, the tech stage tree, the design stage, extra topics.
+#
+# English-first: `title`, `summary`, `text`, `label`, `description` are English;
+# Russian goes into the parallel `*_ru` fields.
+
+id: backend
+title: Backend developer
+title_ru: Backend-разработчик
+version: 5
+extends: base
+description: >
+  Server-side development: language and platform, frameworks, databases, APIs, service communication,
+  operations. The tech stage branches by the stack from the answers and the vacancy.
+description_ru: >
+  Серверная разработка: язык и платформа, фреймворки, базы, API, взаимодействие сервисов,
+  эксплуатация. Этап tech ветвится по стеку из ответов и вакансии.
+
+scope_questions:
+  - id: language
+    text: Main language
+    text_ru: Основной язык
+    type: single
+    required: true
+    infer_from: [vacancy, resume]
+    after: level
+    options:
+      - { value: java, label: Java / Kotlin }
+      - { value: go, label: Go }
+      - { value: python, label: Python }
+      - { value: csharp, label: C# / .NET }
+      - { value: node, label: Node.js / TypeScript }
+      - { value: other, label: Other, label_ru: Другой }
+
+  - id: frameworks
+    text: Frameworks from the vacancy and your experience
+    text_ru: Фреймворки из вакансии и вашего опыта
+    type: text
+    required: false
+    infer_from: [vacancy, resume]
+    after: language
+
+  - id: databases
+    text: Which data stores will come up?
+    text_ru: Какие хранилища будут в разговоре?
+    type: multi
+    required: false
+    infer_from: [vacancy, resume]
+    after: frameworks
+    options:
+      - { value: postgresql, label: PostgreSQL }
+      - { value: mysql, label: MySQL }
+      - { value: mongodb, label: MongoDB }
+      - { value: redis, label: Redis }
+      - { value: clickhouse, label: ClickHouse }
+      - { value: cassandra, label: Cassandra }
+      - { value: elasticsearch, label: Elasticsearch }
+
+  - id: messaging
+    text: Brokers and queues
+    text_ru: Брокеры и очереди
+    type: multi
+    required: false
+    infer_from: [vacancy, resume]
+    after: databases
+    options:
+      - { value: kafka, label: Kafka }
+      - { value: rabbitmq, label: RabbitMQ }
+      - { value: sqs, label: SQS / SNS }
+      - { value: nats, label: NATS }
+      - { value: none, label: None, label_ru: Не будет }
+
+  - id: infra
+    text: Infrastructure in the vacancy
+    text_ru: Инфраструктура в вакансии
+    type: multi
+    required: false
+    infer_from: [vacancy]
+    after: messaging
+    options:
+      - { value: docker, label: Docker }
+      - { value: kubernetes, label: Kubernetes }
+      - { value: aws, label: AWS }
+      - { value: gcp, label: GCP }
+      - { value: azure, label: Azure }
+
+  - id: algorithms
+    text: Will there be algorithm problems?
+    text_ru: Будут ли алгоритмические задачи?
+    type: single
+    required: false
+    after: infra
+    default: unknown
+    options:
+      - { value: "yes", label: "Yes", label_ru: Да }
+      - { value: "no", label: "No", label_ru: Нет }
+      - { value: unknown, label: Not sure, label_ru: Не знаю }
+
+stages:
+  - id: experience
+    topics:
+      - { id: experience.load, title: Load and scale, title_ru: Нагрузки и объёмы, summary: "RPS, data volume, number of services", summary_ru: "RPS, объём данных, число сервисов", priority: 1 }
+      - { id: experience.incidents, title: "Outages I have investigated", title_ru: "Сбои, которые разбирал", priority: 1 }
+
+  - id: tech
+    topics:
+      - id: tech.lang
+        title: Language and platform
+        title_ru: Язык и платформа
+        priority: 1
+        expand: from-answer
+        expand_from: language
+        children:
+          - { id: tech.lang.core, title: Language specifics, title_ru: Особенности языка, priority: 1 }
+          - { id: tech.lang.stdlib, title: Standard library and collections, title_ru: Стандартная библиотека и коллекции, priority: 1 }
+          - { id: tech.lang.memory, title: Memory and garbage collection, title_ru: Память и сборка мусора, priority: 2 }
+          - { id: tech.lang.concurrency, title: Concurrency and async, title_ru: Конкурентность и асинхронность, priority: 1 }
+
+      - id: tech.frameworks
+        title: Frameworks
+        title_ru: Фреймворки
+        priority: 1
+        expand: from-answer
+        expand_from: frameworks
+        children:
+          - { id: tech.frameworks.requests, title: Request handling, title_ru: Обработка запросов, priority: 1 }
+          - { id: tech.frameworks.di, title: Dependencies and configuration, title_ru: Зависимости и конфигурация, priority: 2 }
+          - { id: tech.frameworks.data, title: Data access, title_ru: Доступ к данным, priority: 1 }
+
+      - id: tech.db
+        title: Databases
+        title_ru: Базы данных
+        priority: 1
+        expand: from-answer
+        expand_from: databases
+        children:
+          - { id: tech.db.sql, title: SQL and schema, title_ru: SQL и схема, priority: 1 }
+          - { id: tech.db.indexes, title: Indexes and query plans, title_ru: Индексы и планы запросов, priority: 1 }
+          - { id: tech.db.tx, title: "Transactions, isolation, locks", title_ru: "Транзакции, изоляция, блокировки", priority: 1 }
+          - { id: tech.db.choice, title: Choosing a data store, title_ru: Выбор хранилища, priority: 2 }
+
+      - id: tech.api
+        title: Networking and APIs
+        title_ru: Сети и API
+        priority: 1
+        children:
+          - { id: tech.api.http, title: HTTP and REST, title_ru: HTTP и REST, priority: 1 }
+          - { id: tech.api.grpc, title: gRPC, priority: 3 }
+          - { id: tech.api.auth, title: Authentication and authorization, title_ru: Аутентификация и авторизация, priority: 2 }
+          - { id: tech.api.resilience, title: "Timeouts, retries, idempotency", title_ru: "Таймауты, ретраи, идемпотентность", priority: 1 }
+
+      - id: tech.services
+        title: Service communication
+        title_ru: Взаимодействие сервисов
+        priority: 1
+        children:
+          - id: tech.services.messaging
+            title: Queues and brokers
+            title_ru: Очереди и брокеры
+            priority: 1
+            expand: from-answer
+            expand_from: messaging
+            when: { answer: { messaging: [kafka, rabbitmq, sqs, nats] } }
+          - { id: tech.services.cache, title: Caching, title_ru: Кэширование, priority: 1 }
+          - { id: tech.services.consistency, title: Data consistency, title_ru: Согласованность данных, priority: 1 }
+          - { id: tech.services.failures, title: Partial failures, title_ru: Частичные сбои, priority: 2 }
+
+      - id: tech.ops
+        title: Quality and operations
+        title_ru: Качество и эксплуатация
+        priority: 2
+        children:
+          - { id: tech.ops.testing, title: Testing, title_ru: Тесты, priority: 1 }
+          - { id: tech.ops.security, title: Security, title_ru: Безопасность, priority: 2 }
+          - { id: tech.ops.observability, title: "Logs, metrics, tracing", title_ru: "Логи, метрики, трассировка", priority: 2 }
+          - { id: tech.ops.cicd, title: CI/CD, priority: 3 }
+          - id: tech.ops.containers
+            title: Containers and orchestration
+            title_ru: Контейнеры и оркестрация
+            priority: 2
+            expand: from-answer
+            expand_from: infra
+
+  - id: practice
+    topics:
+      - id: practice.algorithms
+        title: Algorithms
+        title_ru: Алгоритмы
+        priority: 2
+        when: { answer: { algorithms: ["yes", unknown] } }
+      - { id: practice.sql, title: SQL problems, title_ru: SQL-задачи, priority: 2 }
+      - { id: practice.debug, title: Debugging, title_ru: Отладка, priority: 3 }
+      - { id: practice.tests, title: Writing tests for code, title_ru: Написать тесты к коду, priority: 3 }
+      - { id: practice.homework-api, title: Take-home — a service or API, title_ru: Тестовое — сервис или API, summary: "database, validation and errors, tests", summary_ru: "база, валидация и ошибки, тесты", priority: 2 }
+
+  - id: design
+    topics:
+      - id: design.module
+        title: Module design
+        title_ru: Проектирование модуля
+        priority: 2
+        children:
+          - { id: design.module.interfaces, title: Interfaces and responsibility boundaries, title_ru: Интерфейсы и границы ответственности, priority: 1 }
+          - { id: design.module.structure, title: Code structure and extensibility, title_ru: Структура кода и расширяемость, priority: 2 }
+      - id: design.system
+        title: System design
+        title_ru: Проектирование системы
+        priority: 1
+        when: { level: [senior, lead] }
+        children:
+          - { id: design.system.requirements, title: Requirements and load estimation, title_ru: Требования и оценка нагрузки, priority: 1 }
+          - { id: design.system.components, title: Components and APIs, title_ru: Компоненты и API, priority: 1 }
+          - { id: design.system.data, title: Data model and storage, title_ru: Модель данных и хранилища, priority: 1 }
+          - { id: design.system.scaling, title: "Caches, queues, scaling", title_ru: "Кэши, очереди, масштабирование", priority: 1 }
+          - { id: design.system.reliability, title: Fault tolerance, title_ru: Отказоустойчивость, priority: 1 }
+          - { id: design.system.security, title: Security, title_ru: Безопасность, priority: 2 }
+          - { id: design.system.observability, title: Observability, title_ru: Наблюдаемость, priority: 2 }
+          - { id: design.system.cost, title: Cost and trade-offs, title_ru: Стоимость и компромиссы, priority: 2 }
+
+      - id: design.method
+        title: System design method
+        title_ru: Метод system design
+        priority: 1
+        when: {"level": ["middle", "senior", "lead"]}
+        children:
+          - { id: design.method.framework, title: "Answer structure", title_ru: "Структура ответа", summary: "requirements → estimates → API → data model → architecture → scaling and reliability → trade-offs", summary_ru: "требования → оценки → API → модель данных → архитектура → масштабирование и надёжность → компромиссы", priority: 1 }
+          - { id: design.method.requirements, title: "Clarifying requirements", title_ru: "Уточнение требований", summary: "functional and non-functional, questions to the interviewer, stating assumptions", summary_ru: "функциональные и нефункциональные, вопросы интервьюеру, фиксировать допущения", priority: 1 }
+          - { id: design.method.storage, title: "Choosing data stores", title_ru: "Выбор хранилищ", summary: "SQL, key-value, document, columnar, object — matched to concrete queries", summary_ru: "SQL, key-value, документ, колоночное, объектное — под конкретные запросы", priority: 1 }
+          - { id: design.method.tradeoffs, title: "Trade-offs out loud", title_ru: "Компромиссы вслух", summary: "what I chose, why, what the alternative is and when it is better", summary_ru: "что выбрал, почему, какая альтернатива и когда она лучше", priority: 1 }
+          - { id: design.method.practice, title: "Practice", title_ru: "Тренировка", summary: "45 minutes per problem with a diagram, review afterwards", summary_ru: "45 минут на задачу со схемой, разбор после", priority: 2 }
+      - id: design.cases
+        title: Classic problems
+        title_ru: Типовые задачи
+        priority: 1
+        when: {"level": ["middle", "senior", "lead"]}
+        children:
+          - { id: design.cases.ratelimiter, title: "Rate limiter", summary: "Token bucket and sliding window, distributed limit on Redis", summary_ru: "Token bucket и sliding window, распределённый лимит на Redis", priority: 1 }
+          - { id: design.cases.kv, title: "Distributed key-value store or cache", title_ru: "Распределённый key-value или кэш", summary: "Partitioning, replication, consistent hashing, quorums", summary_ru: "Партиционирование, репликация, consistent hashing, кворумы", priority: 1 }
+          - { id: design.cases.notify, title: "Notification system", title_ru: "Система уведомлений", summary: "Push, email, SMS, queues, retries, deduplication, user preferences", summary_ru: "Push, email, SMS, очереди, ретраи, дедупликация, настройки пользователя", priority: 1 }
+          - { id: design.cases.payment, title: "Payment system", title_ru: "Платёжная система", summary: "Idempotency, provider integration, payment statuses, reconciliation", summary_ru: "Идемпотентность, интеграция с провайдерами, статусы платежа, сверка", priority: 1 }
+          - { id: design.cases.analytics, title: "Real-time analytics", title_ru: "Аналитика в реальном времени", summary: "Ad click aggregation: stream processing, windows, late events, ClickHouse", summary_ru: "Агрегация кликов по рекламе: потоковая обработка, окна, поздние события, ClickHouse", priority: 1 }
+          - { id: design.cases.scheduler, title: "Distributed job scheduler", title_ru: "Распределённый планировщик", summary: "Cron at scale, execution guarantees, retries", summary_ru: "Cron в масштабе, гарантии выполнения, ретраи", priority: 1 }
+          - { id: design.cases.webhooks, title: "Webhook delivery", title_ru: "Доставка вебхуков", summary: "Retries, signatures, ordering, disabling broken receivers", summary_ru: "Ретраи, подписи, порядок, отключение сломанных получателей", priority: 1 }
+          - { id: design.cases.urlshort, title: "URL shortener", title_ru: "Сокращатель ссылок", summary: "Short ID generation, redirect, cache, click analytics", summary_ru: "Генерация коротких ID, редирект, кэш, аналитика кликов", priority: 2 }
+          - { id: design.cases.idgen, title: "Unique ID generator", title_ru: "Генератор уникальных ID", summary: "Snowflake, UUIDv7, ordering", summary_ru: "Snowflake, UUIDv7, упорядоченность", priority: 2 }
+          - { id: design.cases.chat, title: "Chat messenger", title_ru: "Мессенджер", summary: "WebSocket, message delivery and ordering, online presence", summary_ru: "WebSocket, доставка и порядок сообщений, онлайн-статус", priority: 2 }
+          - { id: design.cases.feed, title: "News feed", title_ru: "Лента новостей", summary: "Fan-out on write vs fan-out on read, authors with millions of followers", summary_ru: "Fan-out on write vs fan-out on read, авторы с миллионами подписчиков", priority: 2 }
+          - { id: design.cases.booking, title: "Booking system", title_ru: "Бронирование", summary: "Hotels and tickets: double booking, locks, hold with a timeout", summary_ru: "Отели и билеты: двойное бронирование, блокировки, резерв с таймаутом", priority: 2 }
+          - { id: design.cases.flashsale, title: "Online store and flash sale", title_ru: "Интернет-магазин и распродажа", summary: "Inventory, reservations, peak load", summary_ru: "Остатки, резервирование, пиковая нагрузка", priority: 2 }
+          - { id: design.cases.metrics, title: "Monitoring and alerting", title_ru: "Мониторинг и алерты", summary: "Metrics collection, time-series DB, aggregation", summary_ru: "Сбор метрик, time-series БД, агрегация", priority: 2 }
+          - { id: design.cases.logging, title: "Log collection", title_ru: "Сбор логов", summary: "Pipeline, storage, indexing, search", summary_ru: "Пайплайн, хранение, индексация, поиск", priority: 2 }
+          - { id: design.cases.topk, title: "Top-K and leaderboards", title_ru: "Топ-K и лидерборды", summary: "Sorted sets, approximate algorithms (Count-Min Sketch)", summary_ru: "Sorted sets, приближённые алгоритмы (Count-Min Sketch)", priority: 2 }
+          - { id: design.cases.mq, title: "A Kafka-like message queue", title_ru: "Очередь сообщений как Kafka", summary: "Log internals, replication, consumers", summary_ru: "Устройство лога, репликация, консьюмеры", priority: 2 }
+          - { id: design.cases.pipeline, title: "Data pipeline and CDC", title_ru: "Пайплайн данных и CDC", summary: "ETL and ELT, Debezium, batch vs stream", summary_ru: "ETL и ELT, Debezium, батч vs стрим", priority: 2 }
+          - { id: design.cases.gateway, title: "API gateway", summary: "Routing, authentication, rate limits", summary_ru: "Маршрутизация, аутентификация, лимиты", priority: 2 }
+          - { id: design.cases.auth, title: "Authentication and SSO", title_ru: "Аутентификация и SSO", summary: "Tokens, sessions, token revocation", summary_ru: "Токены, сессии, отзыв токенов", priority: 2 }
+          - { id: design.cases.autocomplete, title: "Search autocomplete", title_ru: "Автодополнение поиска", summary: "Trie, top-K, updates", summary_ru: "Trie, топ-K, обновление", priority: 3 }
+          - { id: design.cases.crawler, title: "Web crawler", title_ru: "Веб-краулер", summary: "URL frontier, politeness, deduplication", summary_ru: "Очередь URL, вежливость, дедупликация", priority: 3 }
+          - { id: design.cases.search, title: "Full-text search", title_ru: "Полнотекстовый поиск", summary: "Inverted index, Elasticsearch", summary_ru: "Инвертированный индекс, Elasticsearch", priority: 3 }
+          - { id: design.cases.filesync, title: "File storage (Dropbox)", title_ru: "Хранилище файлов (Dropbox)", summary: "Chunks, deduplication, sync", summary_ru: "Чанки, дедупликация, синхронизация", priority: 3 }
+          - { id: design.cases.video, title: "Video streaming (YouTube)", title_ru: "Видеостриминг (YouTube)", summary: "Upload, transcoding, CDN", summary_ru: "Загрузка, транскодирование, CDN", priority: 3 }
+          - { id: design.cases.objstore, title: "An S3-like object store", title_ru: "Объектное хранилище как S3", summary: "Metadata, replication, erasure coding", summary_ru: "Метаданные, репликация, erasure coding", priority: 3 }
+          - { id: design.cases.proximity, title: "Proximity search (Yelp)", title_ru: "Поиск рядом (Yelp)", summary: "Geohash, quadtree", priority: 3 }
+          - { id: design.cases.ridehailing, title: "Ride hailing (Uber)", title_ru: "Такси (Uber)", summary: "Location tracking, driver matching", summary_ru: "Трекинг локаций, матчинг водителей", priority: 3 }
+          - { id: design.cases.lockservice, title: "Distributed lock service", title_ru: "Сервис блокировок", summary: "Leases, fencing tokens", summary_ru: "Лизинг, fencing tokens", priority: 3 }
+          - { id: design.cases.flags, title: "Feature flags", summary: "Configuration service, percentage rollout", summary_ru: "Сервис конфигурации, раскатка по процентам", priority: 3 }
+          - { id: design.cases.collab, title: "Collaborative editing", title_ru: "Совместное редактирование", summary: "OT and CRDT (overview)", summary_ru: "OT и CRDT (обзорно)", priority: 3 }
+      - id: design.estimation
+        title: Back-of-the-envelope estimates
+        title_ru: Оценки на салфетке
+        priority: 1
+        children:
+          - { id: design.estimation.method, title: "How to estimate in an interview", title_ru: "Как считать на интервью", summary: "from DAU to RPS and volume, rounding to the order of magnitude, stating assumptions out loud", summary_ru: "от DAU к RPS и объёму, округление до порядка, проговаривать допущения вслух", priority: 1 }
+          - { id: design.estimation.latency, title: "Latency orders of magnitude", title_ru: "Порядки задержек", summary: "memory, SSD, network within a data center and across regions, disk — which numbers to keep in your head", summary_ru: "память, SSD, сеть в дата-центре и между регионами, диск — какие числа держать в голове", priority: 1 }
+          - { id: design.estimation.sizes, title: "Sizes and throughput", title_ru: "Размеры и пропускная способность", summary: "how big records, events, images are; RPS per database, cache, broker node", summary_ru: "сколько весят записи, события, картинки; RPS на один узел базы, кэша, брокера", priority: 1 }
+          - { id: design.estimation.queueing, title: "Queues and Little's law", title_ru: "Очереди и закон Литтла", summary: "concurrency = RPS × latency, pool sizing, why tails grow at 80% utilization", summary_ru: "concurrency = RPS × latency, размер пулов, почему при 80% загрузки растут хвосты", priority: 2 }
+          - { id: design.estimation.availability, title: "Availability in nines", title_ru: "Надёжность в девятках", summary: "99.9 vs 99.99 in minutes of downtime, serial and parallel components, replication", summary_ru: "99.9 vs 99.99 в минутах простоя, последовательные и параллельные компоненты, репликация", priority: 1 }
+          - { id: design.estimation.cost, title: "Rough cost", title_ru: "Примерная стоимость", summary: "order of prices for compute, storage, traffic; what grows most expensive — check before the interview", summary_ru: "порядок цен на вычисления, хранение, трафик; что дороже всего растёт — проверять перед собесом", priority: 2 }
+
+  - id: behavioral
+    topics:
+      - { id: behavioral.cross-team, title: "Working with product, frontend, QA, infrastructure", title_ru: "Работа с продуктом, фронтом, QA, инфраструктурой", priority: 2 }
+      - { id: behavioral.incident-ownership, title: Incident ownership, title_ru: Ответственность за инцидент, priority: 1 }
+
+  - id: leadership
+    topics:
+      - { id: leadership.architecture, title: Strategy and architecture, title_ru: Стратегия и архитектура, priority: 1 }
+      - { id: leadership.tech-debt, title: Technical debt, title_ru: Технический долг, priority: 1 }
+      - { id: leadership.hiring, title: Hiring, title_ru: Найм, priority: 3, when: { level: [lead] } }
+
+  - id: final
+    topics:
+      - { id: final.oncall, title: On-call and service ownership, title_ru: Дежурства и ответственность за сервисы, priority: 2 }
+
+cross:
+  - id: stories
+    topics:
+      - { id: stories.incidents, title: Incidents and postmortems, title_ru: Инциденты и постмортемы, priority: 1 }
+
+  - id: questions
+    topics:
+      - { id: questions.oncall, title: About on-call and releases, title_ru: Про дежурства и релизы, priority: 2 }
+
+  - id: theory
+    title: Fundamentals
+    title_ru: Фундамент
+    summary: "theory for your stack: databases, architecture, patterns, distributed systems — offered for approval"
+    summary_ru: "теория под ваш стек: базы, архитектура, паттерны, распределённые системы — предлагается на согласование"
+    used_in: [tech, design, practice]
+    offer: true
+    topics:
+      - id: theory.code
+        title: "Code and design"
+        title_ru: "Код и проектирование"
+        priority: 1
+        children:
+          - { id: theory.code.solid, title: "SOLID", summary: "the five principles, how they are violated, how it shows in code", summary_ru: "пять принципов, как нарушают, как это видно в коде", priority: 1 }
+          - { id: theory.code.gof, title: "GoF patterns", title_ru: "Паттерны GoF", summary: "Strategy, Factory, Builder, Decorator, Adapter, Observer, Template Method — when and why", summary_ru: "Strategy, Factory, Builder, Decorator, Adapter, Observer, Template Method — когда и зачем", priority: 1 }
+          - { id: theory.code.clean-arch, title: "Clean and hexagonal architecture", title_ru: "Чистая и гексагональная архитектура", summary: "layers, ports and adapters, dependency direction", summary_ru: "слои, порты и адаптеры, направление зависимостей", priority: 1 }
+          - { id: theory.code.refactoring, title: "Refactoring and code smells", title_ru: "Рефакторинг и запахи кода", summary: "common smells, safe steps, tests as a safety net", summary_ru: "типовые запахи, безопасные шаги, тесты как страховка", priority: 2 }
+          - { id: theory.code.testing, title: "Testing theory", title_ru: "Теория тестирования", summary: "the pyramid, test doubles, contract and integration tests", summary_ru: "пирамида, test doubles, контрактные и интеграционные тесты", priority: 2 }
+      - id: theory.relational
+        title: "Relational databases: theory"
+        title_ru: "Реляционные базы: теория"
+        priority: 1
+        when: {"answer": {"databases": ["postgresql", "mysql"]}}
+        children:
+          - { id: theory.relational.normalization, title: "Relational model and normalization", title_ru: "Реляционная модель и нормализация", summary: "1NF–3NF, BCNF, when to denormalize", summary_ru: "1НФ–3НФ, BCNF, когда денормализовать", priority: 1 }
+          - { id: theory.relational.acid, title: "ACID and isolation levels", title_ru: "ACID и уровни изоляции", summary: "anomalies: dirty read, non-repeatable read, phantom, write skew, lost update", summary_ru: "аномалии: dirty read, non-repeatable read, phantom, write skew, lost update", priority: 1 }
+          - { id: theory.relational.mvcc, title: "MVCC and locking", title_ru: "MVCC и блокировки", summary: "row versions, row/table locks, deadlocks, SELECT FOR UPDATE", summary_ru: "версии строк, row/table locks, дедлоки, SELECT FOR UPDATE", priority: 1 }
+          - { id: theory.relational.indexes, title: "Index theory", title_ru: "Теория индексов", summary: "B-tree, hash, GIN/GiST, selectivity, covering and composite indexes", summary_ru: "B-tree, hash, GIN/GiST, селективность, покрывающие и составные индексы", priority: 1 }
+          - { id: theory.relational.planner, title: "Query planner and EXPLAIN", title_ru: "Планировщик и EXPLAIN", summary: "statistics, join types, how to read a plan", summary_ru: "статистика, виды join, как читать план", priority: 2 }
+          - { id: theory.relational.scaling, title: "Replication and sharding", title_ru: "Репликация и шардинг", summary: "synchronous/asynchronous replication, shard key, rebalancing", summary_ru: "синхронная/асинхронная репликация, ключ шардирования, ребалансировка", priority: 2 }
+      - id: theory.caching
+        title: "Caching: theory"
+        title_ru: "Кэширование: теория"
+        priority: 1
+        when: {"answer": {"databases": ["redis"]}}
+        children:
+          - { id: theory.caching.strategies, title: "Caching strategies", title_ru: "Стратегии кэширования", summary: "cache-aside, read/write-through, write-behind — when to use which", summary_ru: "cache-aside, read/write-through, write-behind — когда что", priority: 1 }
+          - { id: theory.caching.invalidation, title: "Invalidation and consistency", title_ru: "Инвалидация и консистентность", summary: "TTL, events, stale data, dual writes", summary_ru: "TTL, события, stale data, двойная запись", priority: 1 }
+          - { id: theory.caching.eviction, title: "Eviction and load problems", title_ru: "Вытеснение и проблемы нагрузки", summary: "LRU/LFU, cache stampede, hot keys, warm-up", summary_ru: "LRU/LFU, cache stampede, горячие ключи, прогрев", priority: 2 }
+      - id: theory.nosql
+        title: "Non-relational data stores: theory"
+        title_ru: "Нереляционные хранилища: теория"
+        priority: 2
+        when: {"answer": {"databases": ["mongodb", "redis", "clickhouse", "cassandra", "elasticsearch"]}}
+        children:
+          - { id: theory.nosql.models, title: "Data models", title_ru: "Модели данных", summary: "key-value, document, wide-column, columnar, search index", summary_ru: "key-value, документ, wide-column, колоночная, поисковый индекс", priority: 1 }
+          - { id: theory.nosql.lsm, title: "LSM tree vs B-tree", title_ru: "LSM-дерево против B-дерева", summary: "writes, reads, compaction, amplification", summary_ru: "запись, чтение, компакция, амплификация", priority: 2 }
+          - { id: theory.nosql.columnar, title: "Columnar storage", title_ru: "Колоночное хранение", summary: "compression, vectorized execution, when OLAP fits", summary_ru: "сжатие, векторное выполнение, когда OLAP", priority: 2 }
+      - id: theory.enterprise
+        title: "Enterprise application patterns"
+        title_ru: "Паттерны корпоративных приложений"
+        priority: 1
+        children:
+          - { id: theory.enterprise.layers, title: "Layers and Service Layer", title_ru: "Слои и Service Layer", summary: "presentation, domain, data; where business logic lives", summary_ru: "презентация, домен, данные; где живёт бизнес-логика", priority: 1 }
+          - { id: theory.enterprise.domain-logic, title: "Domain Model vs Transaction Script", title_ru: "Domain Model против Transaction Script", summary: "when a rich model, when a script", summary_ru: "когда богатая модель, когда сценарий", priority: 1 }
+          - { id: theory.enterprise.data-access, title: "Repository, Data Mapper, Unit of Work", summary: "how an ORM implements these patterns", summary_ru: "как ORM реализует эти паттерны", priority: 1 }
+          - { id: theory.enterprise.locking, title: "Optimistic and pessimistic locking", title_ru: "Оптимистичная и пессимистичная блокировка", summary: "versions, conflicts, offline lock", summary_ru: "версии, конфликты, offline lock", priority: 1 }
+          - { id: theory.enterprise.ddd, title: "DDD", summary: "bounded context, aggregates, value objects, domain events", summary_ru: "bounded context, агрегаты, value objects, доменные события", priority: 2 }
+      - id: theory.integration
+        title: "Integration and messaging"
+        title_ru: "Интеграция и обмен сообщениями"
+        priority: 1
+        when: {"answer": {"messaging": ["kafka", "rabbitmq", "sqs", "nats"]}}
+        children:
+          - { id: theory.integration.styles, title: "Integration styles", title_ru: "Стили интеграции", summary: "files, shared database, RPC, messaging — pros and costs", summary_ru: "файлы, общая база, RPC, сообщения — плюсы и цена", priority: 1 }
+          - { id: theory.integration.log-vs-queue, title: "Log vs queue", title_ru: "Лог против очереди", summary: "a Kafka-like log and a classic queue: retention, replay, ordering, consumer scaling", summary_ru: "Kafka-подобный лог и классическая очередь: хранение, повторное чтение, порядок, масштабирование потребителей", priority: 1 }
+          - { id: theory.integration.channels, title: "Point-to-point and publish-subscribe", title_ru: "Point-to-point и publish-subscribe", summary: "queues and topics, competing consumers", summary_ru: "очереди и топики, competing consumers", priority: 1 }
+          - { id: theory.integration.delivery, title: "Delivery semantics", title_ru: "Семантики доставки", summary: "at-most/at-least/exactly-once, idempotent receiver, deduplication", summary_ru: "at-most/at-least/exactly-once, идемпотентный получатель, дедупликация", priority: 1 }
+          - { id: theory.integration.outbox, title: "Transactional outbox and inbox", title_ru: "Transactional outbox и inbox", summary: "how not to lose an event when writing to the database", summary_ru: "как не потерять событие при записи в базу", priority: 1 }
+          - { id: theory.integration.dlq, title: "DLQ, retries and ordering", title_ru: "DLQ, повторы и порядок", summary: "dead letter, delayed retries, message ordering", summary_ru: "dead letter, ретраи с задержкой, порядок сообщений", priority: 2 }
+      - id: theory.microservices
+        title: "Microservice patterns"
+        title_ru: "Микросервисные паттерны"
+        priority: 1
+        children:
+          - { id: theory.microservices.decomposition, title: "Monolith or microservices", title_ru: "Монолит или микросервисы", summary: "service boundaries, database per service, strangler fig", summary_ru: "границы сервисов, database per service, strangler fig", priority: 1 }
+          - { id: theory.microservices.saga, title: "Distributed transactions and sagas", title_ru: "Распределённые транзакции и саги", summary: "orchestration and choreography, compensations", summary_ru: "оркестрация и хореография, компенсации", priority: 1 }
+          - { id: theory.microservices.cqrs, title: "CQRS and event sourcing", title_ru: "CQRS и event sourcing", summary: "when they are justified, the cost", summary_ru: "когда оправданы, цена", priority: 2 }
+          - { id: theory.microservices.gateway, title: "API Gateway, BFF, anti-corruption layer", summary: "entry point, adapting external models", summary_ru: "входная точка, адаптация внешних моделей", priority: 2 }
+          - { id: theory.microservices.resilience, title: "Resilience", title_ru: "Устойчивость", summary: "timeouts, retries with jitter, circuit breaker, bulkhead", summary_ru: "таймауты, ретраи с джиттером, circuit breaker, bulkhead", priority: 1 }
+      - id: theory.distributed
+        title: "Distributed systems"
+        title_ru: "Распределённые системы"
+        priority: 1
+        when: {"level": ["middle", "senior", "lead"]}
+        children:
+          - { id: theory.distributed.cap, title: "CAP, PACELC and consistency models", title_ru: "CAP, PACELC и модели согласованности", summary: "strong, eventual, read-your-writes, causal", priority: 1 }
+          - { id: theory.distributed.replication, title: "Replication and quorums", title_ru: "Репликация и кворумы", summary: "leader-follower, multi-leader, leaderless, W+R>N", priority: 1 }
+          - { id: theory.distributed.partitioning, title: "Partitioning", title_ru: "Партиционирование", summary: "by key and by range, hot keys, consistent hashing", summary_ru: "по ключу и диапазону, горячие ключи, consistent hashing", priority: 1 }
+          - { id: theory.distributed.consensus, title: "Consensus", title_ru: "Консенсус", summary: "Raft in simple terms, leader election, split brain", summary_ru: "Raft на пальцах, выборы лидера, split brain", priority: 2 }
+          - { id: theory.distributed.time, title: "Time and ordering", title_ru: "Время и порядок", summary: "Lamport clocks, vector clocks, why you can't trust wall-clock time", summary_ru: "часы Лэмпорта, векторные часы, почему нельзя верить времени", priority: 2 }
+          - { id: theory.distributed.failures, title: "Failures and backpressure", title_ru: "Отказы и backpressure", summary: "partial failures, timeouts, load shedding, backpressure", summary_ru: "частичные отказы, таймауты, load shedding, backpressure", priority: 1 }
+      - id: theory.network
+        title: "Networking and protocols"
+        title_ru: "Сети и протоколы"
+        priority: 2
+        children:
+          - { id: theory.network.tcp, title: "TCP, UDP and connections", title_ru: "TCP, UDP и соединения", summary: "handshake, keep-alive, connection pools", summary_ru: "рукопожатие, keep-alive, пулы соединений", priority: 2 }
+          - { id: theory.network.http, title: "HTTP/1.1, HTTP/2, HTTP/3 and TLS", title_ru: "HTTP/1.1, HTTP/2, HTTP/3 и TLS", summary: "multiplexing, head-of-line blocking, the TLS handshake", summary_ru: "мультиплексирование, head-of-line blocking, рукопожатие TLS", priority: 1 }
+          - { id: theory.network.rest, title: "REST and method idempotency", title_ru: "REST и идемпотентность методов", summary: "resources, status codes, idempotency keys, pagination", summary_ru: "ресурсы, коды ответов, idempotency keys, пагинация", priority: 1 }
+      - id: theory.security
+        title: "Security"
+        title_ru: "Безопасность"
+        priority: 2
+        children:
+          - { id: theory.security.owasp, title: "OWASP Top 10", summary: "injections, broken access control, SSRF", summary_ru: "инъекции, broken access control, SSRF", priority: 1 }
+          - { id: theory.security.auth, title: "Authentication and authorization", title_ru: "Аутентификация и авторизация", summary: "sessions, JWT, OAuth2 and OIDC", summary_ru: "сессии, JWT, OAuth2 и OIDC", priority: 1 }
+      - id: theory.observability
+        title: "Observability and operations"
+        title_ru: "Наблюдаемость и эксплуатация"
+        priority: 2
+        children:
+          - { id: theory.observability.signals, title: "Logs, metrics, traces", title_ru: "Логи, метрики, трассировки", summary: "what goes where, correlation, metric cardinality", summary_ru: "что куда, корреляция, кардинальность метрик", priority: 1 }
+          - { id: theory.observability.slo, title: "SLI, SLO and incidents", title_ru: "SLI, SLO и инциденты", summary: "error budget, postmortems", summary_ru: "бюджет ошибок, постмортемы", priority: 2 }
+      - id: theory.algorithms
+        title: "Algorithms and data structures"
+        title_ru: "Алгоритмы и структуры данных"
+        priority: 2
+        when: {"answer": {"algorithms": ["yes", "unknown"]}}
+        children:
+          - { id: theory.algorithms.complexity, title: "Complexity", title_ru: "Сложность", summary: "Big-O for time and memory, amortization", summary_ru: "Big-O по времени и памяти, амортизация", priority: 1 }
+          - { id: theory.algorithms.structures, title: "Data structures", title_ru: "Структуры данных", summary: "hash table, heap, trees, graphs — how they work", summary_ru: "хеш-таблица, куча, деревья, графы — устройство", priority: 1 }
+          - { id: theory.algorithms.patterns, title: "Problem patterns", title_ru: "Паттерны задач", summary: "two pointers, sliding window, BFS/DFS, binary search", summary_ru: "два указателя, окно, BFS/DFS, бинарный поиск", priority: 1 }
+
+sources:
+  - id: postgresql-docs
+    title: PostgreSQL Documentation
+    url: https://www.postgresql.org/docs/current/
+    covers: [tech.db.indexes, tech.db.tx]
+  - id: rfc9110
+    title: RFC 9110 — HTTP Semantics
+    url: https://www.rfc-editor.org/rfc/rfc9110
+    covers: [tech.api.http, tech.api.resilience]
+  - id: kafka-docs
+    title: Apache Kafka Documentation
+    url: https://kafka.apache.org/documentation/
+    covers: [tech.services.messaging]
+  - id: grpc-docs
+    title: gRPC Documentation
+    url: https://grpc.io/docs/
+    covers: [tech.api.grpc]
+  - id: owasp-top10
+    title: OWASP Top 10
+    url: https://owasp.org/www-project-top-ten/
+    covers: [tech.ops.security, design.system.security]
+  - id: ddia
+    title: "Martin Kleppmann — Designing Data-Intensive Applications (\"the boar book\")"
+    title_ru: "Martin Kleppmann — Designing Data-Intensive Applications («книга с кабанчиком»)"
+    url: https://dataintensive.net/
+    covers: ["theory.relational.acid", "theory.relational.scaling", "theory.distributed.replication", "theory.distributed.partitioning", "theory.distributed.consensus", "theory.distributed.time", "theory.nosql.lsm", "theory.integration.log-vs-queue"]
+  - id: database-internals
+    title: "Alex Petrov — Database Internals"
+    url: https://www.databass.dev/
+    covers: ["theory.relational.indexes", "theory.nosql.lsm", "theory.distributed.consensus"]
+  - id: microservices-patterns
+    title: "Chris Richardson — Microservices Patterns"
+    url: https://microservices.io/book
+    covers: ["theory.microservices.saga", "theory.microservices.cqrs", "theory.integration.outbox", "theory.microservices.decomposition"]
+  - id: building-microservices
+    title: "Sam Newman — Building Microservices, 2nd ed."
+    url: https://samnewman.io/books/building_microservices_2nd_edition/
+    covers: ["theory.microservices.decomposition", "theory.microservices.gateway", "theory.microservices.resilience"]
+  - id: poeaa
+    title: "Martin Fowler — Patterns of Enterprise Application Architecture"
+    url: https://martinfowler.com/books/eaa.html
+    covers: ["theory.enterprise.layers", "theory.enterprise.domain-logic", "theory.enterprise.data-access", "theory.enterprise.locking"]
+  - id: eip
+    title: "Hohpe, Woolf — Enterprise Integration Patterns"
+    url: https://www.enterpriseintegrationpatterns.com/
+    covers: ["theory.integration.styles", "theory.integration.channels", "theory.integration.delivery", "theory.integration.dlq"]
+  - id: ddd
+    title: "Eric Evans — Domain-Driven Design"
+    url: https://www.domainlanguage.com/ddd/
+    covers: ["theory.enterprise.ddd"]
+  - id: gof
+    title: "Gamma, Helm, Johnson, Vlissides — Design Patterns (GoF)"
+    url: https://en.wikipedia.org/wiki/Design_Patterns
+    covers: ["theory.code.gof"]
+  - id: clean-architecture
+    title: "Robert Martin — The Clean Architecture"
+    url: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
+    covers: ["theory.code.clean-arch", "theory.code.solid"]
+  - id: refactoring
+    title: "Martin Fowler — Refactoring"
+    url: https://refactoring.com/
+    covers: ["theory.code.refactoring"]
+  - id: release-it
+    title: "Michael Nygard — Release It!, 2nd ed."
+    url: https://pragprog.com/titles/mnee2/release-it-second-edition/
+    covers: ["theory.microservices.resilience", "theory.distributed.failures"]
+  - id: sre-book
+    title: "Google — Site Reliability Engineering"
+    url: https://sre.google/sre-book/table-of-contents/
+    covers: ["theory.observability.slo", "design.estimation.availability"]
+  - id: dist-patterns
+    title: "Unmesh Joshi — Patterns of Distributed Systems"
+    url: https://martinfowler.com/articles/patterns-of-distributed-systems/
+    covers: ["theory.distributed.replication", "theory.distributed.consensus"]
+  - id: latency-numbers
+    title: "Latency numbers every programmer should know"
+    url: https://gist.github.com/jboner/2841832
+    covers: ["design.estimation.latency"]
+  - id: system-design-interview
+    title: "Alex Xu — System Design Interview, vol. 1–2"
+    url: https://bytebytego.com/
+    covers: ["design.method.framework", "design.cases.ratelimiter", "design.cases.kv", "design.cases.notify", "design.cases.urlshort", "design.cases.idgen", "design.cases.chat", "design.cases.feed", "design.cases.payment", "design.cases.metrics", "design.cases.topk", "design.cases.proximity", "design.cases.autocomplete", "design.cases.crawler", "design.estimation.method"]

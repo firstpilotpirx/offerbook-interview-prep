@@ -1,0 +1,473 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prepare-interview-skills/profile.schema.json",
+  "title": "Specialty profile",
+  "description": "A profile defines the interview stages, cross-cutting sections, base topics and extra survey questions for one specialty. A profile can inherit from another (extends) and change only the differences. Human text is English-first: `title`, `summary`, `text`, `label`, `description` are English; Russian goes into the parallel `*_ru` fields. Other explanation languages are translated by the agent at outline time.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "version"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/slug",
+      "description": "Matches the file name without .yaml"
+    },
+    "title": {
+      "$ref": "#/$defs/text",
+      "description": "Specialty name in English"
+    },
+    "title_ru": {
+      "$ref": "#/$defs/text_ru"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Grows on any change of stage or topic ids"
+    },
+    "extends": {
+      "$ref": "#/$defs/slug",
+      "description": "Parent profile. base has none"
+    },
+    "abstract": {
+      "type": "boolean",
+      "description": "true — the profile cannot be selected directly, only inherited"
+    },
+    "description": {
+      "type": "string",
+      "description": "English description"
+    },
+    "description_ru": {
+      "type": "string",
+      "description": "Russian description"
+    },
+    "levels": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/slug"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Position levels the profile understands. Inherited if not set"
+    },
+    "disable": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true,
+      "description": "ids of parent stages, sections or topics that this specialty does not need"
+    },
+    "scope_questions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/question"
+      },
+      "description": "Extra prep:scope steps on top of the common ones. Appended to the parent's questions"
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/stage"
+      },
+      "description": "Interview stages (axis 1). A stage with the same id as the parent's extends it"
+    },
+    "cross": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/cross"
+      },
+      "description": "Cross-cutting sections (axis 2)"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "description": "Registry of the profile's canonical sources"
+    },
+    "tracks": {
+      "type": "array",
+      "description": "Study tracks: a unit and a daily goal; every stage and cross-cutting section belongs to one track. A child overrides a track by id.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/slug"
+          },
+          "title": {
+            "type": "string"
+          },
+          "title_ru": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "unit_ru": {
+            "type": "string"
+          },
+          "goal": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "kind": {
+            "enum": [
+              "topics",
+              "words"
+            ]
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/slug"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z0-9][a-z0-9-]*)*$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human text in English (the primary language of profiles)"
+    },
+    "text_ru": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The same text in Russian. Optional: if missing, the English text is shown"
+    },
+    "priority": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "description": "1 essential, 2 important, 3 optional"
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "description": "Inclusion condition. All fields must match (AND). Values within a field are OR",
+      "properties": {
+        "level": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/slug"
+          },
+          "minItems": 1
+        },
+        "answer": {
+          "type": "object",
+          "description": "question id → allowed values",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "topic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id",
+          "description": "Stable, never changes. Starts with the parent's id"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "title_ru": {
+          "$ref": "#/$defs/text_ru"
+        },
+        "summary": {
+          "type": "string",
+          "description": "One line: what exactly will be asked (English)"
+        },
+        "summary_ru": {
+          "$ref": "#/$defs/text_ru"
+        },
+        "priority": {
+          "$ref": "#/$defs/priority"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "when": {
+          "$ref": "#/$defs/condition"
+        },
+        "expand": {
+          "type": "string",
+          "enum": [
+            "fixed",
+            "from-answer",
+            "from-vacancy"
+          ],
+          "description": "fixed — children as they are; from-answer / from-vacancy — prep:outline expands children from the answers or the vacancy"
+        },
+        "expand_from": {
+          "type": "string",
+          "description": "id of the question to expand from (for from-answer)"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/topic"
+          }
+        }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "title_ru": {
+          "$ref": "#/$defs/text_ru"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "summary": {
+          "type": "string",
+          "description": "English"
+        },
+        "summary_ru": {
+          "$ref": "#/$defs/text_ru"
+        },
+        "personalized": {
+          "type": "boolean",
+          "description": "true — the content is generated for the vacancy and does not go into the shared base"
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Not every process has this stage; prep:scope asks whether it will happen"
+        },
+        "when": {
+          "$ref": "#/$defs/condition"
+        },
+        "replace_topics": {
+          "type": "boolean",
+          "description": "true — the parent's topics are dropped, only these remain"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/topic"
+          }
+        },
+        "ask": {
+          "enum": [
+            "early",
+            "technical",
+            "final",
+            "never"
+          ],
+          "description": "Which wizard question \"Which stages will happen?\" shows the stage in; never — not asked (preparation, offer)"
+        }
+      }
+    },
+    "cross": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "title_ru": {
+          "$ref": "#/$defs/text_ru"
+        },
+        "summary": {
+          "type": "string",
+          "description": "English"
+        },
+        "summary_ru": {
+          "$ref": "#/$defs/text_ru"
+        },
+        "used_in": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/slug"
+          },
+          "uniqueItems": true,
+          "description": "ids of the stages where the section is needed"
+        },
+        "personalized": {
+          "type": "boolean"
+        },
+        "when": {
+          "$ref": "#/$defs/condition"
+        },
+        "replace_topics": {
+          "type": "boolean"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/topic"
+          }
+        },
+        "offer": {
+          "type": "boolean",
+          "description": "The section is offered to the person for approval as buttons (tools/theory_question.py) instead of being included silently"
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "text",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "text_ru": {
+          "$ref": "#/$defs/text_ru"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "single",
+            "multi",
+            "text",
+            "file"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "label"
+            ],
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$",
+                "description": "Stored answer value; never translated"
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              },
+              "label_ru": {
+                "$ref": "#/$defs/text_ru"
+              }
+            }
+          }
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "default": {},
+        "infer_from": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "resume",
+              "vacancy"
+            ]
+          },
+          "description": "Where the skill tries to infer the answer from before asking"
+        },
+        "after": {
+          "$ref": "#/$defs/slug",
+          "description": "Ask after this question"
+        },
+        "when": {
+          "$ref": "#/$defs/condition"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "url"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "title": {
+          "type": "string",
+          "description": "English; book titles keep their original names"
+        },
+        "title_ru": {
+          "$ref": "#/$defs/text_ru"
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https://"
+        },
+        "covers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "description": "ids of the topics for which the source is canonical"
+        },
+        "last_verified": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    }
+  }
+}

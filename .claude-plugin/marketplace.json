@@ -1,0 +1,22 @@
+{
+  "name": "offerbook",
+  "description": "Offerbook — interview prep from resume to job offer",
+  "owner": {
+    "name": "firstpilotpirx"
+  },
+  "plugins": [
+    {
+      "name": "offerbook-interview-prep",
+      "source": "./",
+      "description": "Interview prep from resume to job offer: study plan, lessons, English trainer, interview tracker. /offerbook-start, /offerbook-next, /offerbook-update",
+      "keywords": [
+        "interview",
+        "interview-prep",
+        "job-offer",
+        "resume",
+        "english",
+        "system-design"
+      ]
+    }
+  ]
+}

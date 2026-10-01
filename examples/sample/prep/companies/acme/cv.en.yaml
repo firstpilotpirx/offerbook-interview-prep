@@ -1,0 +1,45 @@
+lang: en
+target: acme
+basics:
+  name: Alex Example
+  title: Senior Backend Engineer
+  location: Lisbon, Portugal
+  work: "Remote · open to relocation"
+  email: alex@example.com
+  links:
+    - { label: GitHub, url: "https://github.com/example" }
+    - { label: LinkedIn, url: "https://www.linkedin.com/in/example" }
+summary: >-
+  Backend engineer with 12 years in software, the last six in high-load data infrastructure.
+  Built indexers that process 9 blockchains in real time and a token database used by millions of wallets.
+  Strong in Java and Node.js, PostgreSQL and Kafka. Looking for a senior or tech lead role on a data-heavy product.
+skills:
+  - { group: Languages, items: [Java, Kotlin, TypeScript] }
+  - { group: Data, items: [PostgreSQL, Kafka, Redis, ClickHouse] }
+  - { group: Infrastructure, items: [Docker, Kubernetes, AWS, Grafana] }
+experience:
+  - company: Chainly
+    about: Crypto portfolio tracker
+    role: Senior Backend Engineer / Tech Lead
+    location: Remote
+    start: 2019-06
+    end: present
+    product: "History indexer and token database behind a wallet app with 500k monthly users"
+    achievements:
+      - text: "Built a multi-chain history indexer for 9 networks that keeps up with the chain head at 3k events/s"
+        story: stories.indexer
+      - text: "Cut p95 latency of the token API from 900 ms to 120 ms by moving hot reads to Redis and denormalizing PostgreSQL tables"
+      - text: "Led a team of 4 engineers; introduced design reviews and on-call runbooks"
+    stack: [TypeScript, Node.js, PostgreSQL, Kafka, Redis, Kubernetes]
+  - company: Factory Systems
+    role: Software Engineer
+    start: 2009-01
+    end: 2020-02
+    achievements:
+      - text: "Responsible for SCADA integrations with industrial controllers"
+      - text: "Worked on network device firmware"
+education:
+  - { school: University of Novi Sad, degree: "BSc Computer Science", end: "2008" }
+languages:
+  - { name: Russian, level: Native }
+  - { name: English, level: B2 }

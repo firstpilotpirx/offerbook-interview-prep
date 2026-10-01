@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prepare-interview-skills/company.schema.json",
+  "title": "Company interview process",
+  "description": "prep/companies/<id>/company.yaml — everything about one company: vacancy, contacts, stages, questions, conversations. Source of truth for the skills; the page form writes to the inbox, prep-track moves it here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "status", "created"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "Matches the folder name" },
+    "name": { "type": "string", "minLength": 1 },
+    "status": {
+      "enum": ["lead", "applied", "active", "offer", "accepted", "rejected", "withdrawn", "paused"],
+      "description": "lead — considering; applied — applied; active — stages in progress"
+    },
+    "profile": { "type": "string", "description": "Specialty profile whose stages the process follows" },
+    "created": { "type": "string", "format": "date" },
+    "updated": { "type": "string", "format": "date" },
+    "vacancy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string" },
+        "url": { "type": "string", "pattern": "^https?://" },
+        "file": { "type": "string", "description": "Vacancy text next to it: vacancy.md" },
+        "level": { "type": "string" },
+        "salary": { "type": "string", "description": "Salary range from the vacancy or from HR" },
+        "format": { "type": "string", "description": "office / hybrid / remote, country" }
+      }
+    },
+    "contacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "role"],
+        "properties": {
+          "name": { "type": "string" },
+          "role": { "enum": ["recruiter", "hr", "hiring-manager", "engineer", "cto", "other"] },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "description": "Stages in the order they happen",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "stage", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*-[0-9]+$", "description": "<stage>-<n>: tech-1, tech-2" },
+          "stage": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "description": "stage id from the profile" },
+          "title": { "type": "string", "description": "What the company calls it: \"Tech round with the team\"" },
+          "status": { "enum": ["expected", "scheduled", "passed", "failed", "cancelled", "skipped"] },
+          "date": { "type": "string", "format": "date" },
+          "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+          "format": { "enum": ["call", "video", "onsite", "homework", "chat"] },
+          "language": { "type": "string" },
+          "with": { "type": "array", "items": { "type": "string" }, "description": "Names from contacts" },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["q"],
+              "properties": {
+                "q": { "type": "string", "description": "The question as it was asked" },
+                "topic": { "type": "string", "pattern": "^[a-z][a-z0-9-]*(\\.[a-z0-9][a-z0-9-]*)*$", "description": "plan topic id" },
+                "went": { "enum": ["good", "ok", "bad"] },
+                "note": { "type": "string", "description": "What I answered, what was missing" }
+              }
+            }
+          },
+          "feelings": { "type": "string", "description": "Overall impression in your own words" },
+          "feedback": { "type": "string", "description": "What the company said" },
+          "next": { "type": "string", "description": "Next step and deadline" }
+        }
+      }
+    },
+    "log": {
+      "type": "array",
+      "description": "Timeline: HR conversations, emails, decisions, notes",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["date", "kind", "text"],
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "kind": { "enum": ["hr-call", "email", "message", "note", "decision", "offer"] },
+          "with": { "type": "string" },
+          "text": { "type": "string", "minLength": 1 },
+          "facts": {
+            "type": "object",
+            "description": "What not to forget: the stated range, deadlines, terms",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

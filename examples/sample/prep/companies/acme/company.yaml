@@ -1,0 +1,44 @@
+id: acme
+name: Acme Payments
+status: active
+profile: backend
+created: 2026-09-20
+updated: 2026-09-30
+vacancy:
+  title: Senior Backend Engineer
+  url: https://example.com/jobs/senior-backend
+  file: vacancy.md
+  level: senior
+  salary: "€80–95k"
+  format: удалённо, EU
+contacts:
+  - { name: Anna, role: recruiter }
+  - { name: Mark, role: engineer, note: "лид платёжной команды" }
+stages:
+  - id: recruiter-1
+    stage: recruiter
+    status: passed
+    date: 2026-09-24
+    format: video
+    language: english
+    with: [Anna]
+    questions:
+      - { q: "Why are you leaving your current job?", topic: answers.pitch, went: ok, note: "долго начинал, нужен короткий вариант" }
+    feelings: Спокойно, но в начале путался в английском
+    next: Тех-интервью на следующей неделе
+  - id: tech-1
+    stage: tech
+    status: scheduled
+    date: 2026-10-02
+    time: "15:00"
+    format: video
+    with: [Mark]
+  - id: design-1
+    stage: design
+    status: expected
+log:
+  - date: 2026-09-24
+    kind: hr-call
+    with: Anna
+    text: "Три этапа: тех, проектирование, финал с CTO. Решение в течение недели после финала."
+    facts: { вилка: "€80–95k", "дата выхода": "обсуждаема, 1 месяц ок" }

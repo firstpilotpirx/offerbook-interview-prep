@@ -1,0 +1,37 @@
+# Template for a new specialty.
+# 1. Copy it to profiles/<id>.yaml (id in Latin letters, e.g. qa, frontend, analyst).
+# 2. The validator skips files starting with "_" — this one too.
+# 3. Describe only the differences from base: everything else is inherited.
+# 4. Human text is English-first: `title`, `summary`, `text`, `label` in English,
+#    Russian in the parallel `title_ru`, `summary_ru`, `text_ru`, `label_ru` (optional).
+#    Other explanation languages are translated by the agent at outline time.
+# 5. python3 tools/validate_profiles.py --print <id>
+# 6. python3 tools/validate_profiles.py --update-lock
+
+id: my-role
+title: Specialty name
+title_ru: Название специальности
+version: 1
+extends: base
+
+# base stages that never happen in this specialty, and unneeded topics
+disable: []            # for example: [design, practice.live]
+
+# Survey questions on top of the common ones (stack, tools)
+scope_questions: []
+
+stages:
+  # The tech stage in base is empty — it must be filled in or disabled
+  - id: tech
+    topics:
+      - id: tech.example
+        title: Example branch
+        title_ru: Пример ветки
+        priority: 1
+        children:
+          - { id: tech.example.leaf, title: Example item, title_ru: Пример пункта, priority: 2 }
+
+  # The design stage in base is empty too: fill it in or add it to disable
+
+cross: []
+sources: []

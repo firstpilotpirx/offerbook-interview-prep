@@ -1,0 +1,21 @@
+{
+  "topics": [
+    "answers",
+    "answers.pitch",
+    "stories",
+    "stories.indexer",
+    "tech",
+    "tech.frameworks",
+    "tech.frameworks.transactional",
+    "tech.services",
+    "tech.services.consistency",
+    "tech.services.messaging"
+  ],
+  "cards": [
+    "a:pitch-1",
+    "p:consumers-could-not-keep-up",
+    "v:be",
+    "w:keep-up-with",
+    "w:the-trade-off-is"
+  ]
+}

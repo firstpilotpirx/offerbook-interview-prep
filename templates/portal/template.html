@@ -1,0 +1,27 @@
+<title>{{TITLE}}</title>
+<meta name="description" content="Personal interview preparation">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+{{CSS}}
+</style>
+
+<header>
+  <div class="wrap bar-top">
+    <div class="brand" id="title"></div>
+    <nav class="tabs" role="tablist" id="tabs"></nav>
+    <div class="head-tools">
+      <div class="seg" role="group" aria-label="Language" id="langs"></div>
+      <button type="button" class="iconbtn" id="theme" aria-label="Theme">◐</button>
+    </div>
+  </div>
+  <div id="summary" hidden></div>
+</header>
+<main class="wrap" id="main"></main>
+<div class="pop" id="pop" hidden></div>
+
+<script id="prep-data" type="application/json">{{DATA}}</script>
+<script>
+{{JS}}
+</script>
