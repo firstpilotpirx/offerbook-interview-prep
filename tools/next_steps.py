@@ -166,6 +166,16 @@ def main() -> int:
         ids = sorted({r["id"] for r in shallow})
         add("deepen", "Deepen materials", f"Short topics: {len(ids)} — I'll expand them to full lessons, key ones first", "build", 81,
             topics=ids[:10], mode="deepen")
+    try:   # fact-check: lessons not compared with primary sources yet (content.py unverified)
+        import content as ct
+        prio = {n["id"]: n.get("priority", 2) for n in leaves}
+        unchecked = sorted((k for k, v in ct.verify_state(root).items() if v["state"] != "ok"), key=lambda k: (prio.get(k, 2), k))
+    except Exception:
+        unchecked = []
+    if unchecked:
+        p1 = sum(1 for k in unchecked if prio.get(k, 2) == 1)
+        add("verify", "Check the facts", f"{len(unchecked)} lessons not yet checked against sources" + (f", {p1} of them key" if p1 else "") +
+            " — I'll compare them with the docs and books and fix what's wrong", "build", 80 if p1 else 70, topics=unchecked[:10], mode="verify")
     built = session.get("built_at", 0) or 0
     if outline and (not session.get("page_url") or newest_content > built):
         add("page", "Build the page" if not session.get("page_url") else "Update the page",

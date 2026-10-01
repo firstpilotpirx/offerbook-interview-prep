@@ -7,6 +7,20 @@
 #   profile_topics      the profile changed — show the new topics and offer to add them (outline, mode update)
 # data_version — data format version after this version (tools/migrate.py).
 
+- version: "0.13.5"
+  date: 2026-10-01
+  data_version: 4
+  notes:
+    ru:
+      - "README: установка без терминала — в приложении Claude через «Customize → Plugins → Add → Add marketplace», в Claude Code командами /plugin прямо в чате."
+      - "Проверка фактов: каждый урок и задача по system design сверяются с первоисточниками (документация вашей версии, RFC, главы книг) — по возможности отдельным агентом. Источники со ссылками на конкретные разделы; что не подтвердилось — помечено ⚠. На уроке бейдж «проверено», в меню — «Проверить факты»."
+      - "Пример в examples/sample явно помечен как вымышленный: в резюме и рассказах вместо цифр заглушки."
+    en:
+      - "README: install without a terminal — in the Claude app via Customize → Plugins → Add → Add marketplace, in Claude Code with /plugin commands right in the chat."
+      - "Fact-check: every lesson and system design case is checked against primary sources (docs of your version, RFCs, book chapters), by a separate agent where possible. Sources link to exact sections; what could not be confirmed is marked ⚠. Lessons show a \"fact-checked\" badge; the menu offers \"Check the facts\"."
+      - "The example in examples/sample is clearly marked as fictional: the resume and stories use placeholders instead of numbers."
+  actions: [rebuild_page, "offer:verify"]
+
 - version: "0.13.4"
   date: 2026-10-01
   data_version: 4

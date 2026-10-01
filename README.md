@@ -6,7 +6,8 @@
 
 - **Guided start.** One command, `/offerbook-start`, walks you through a short wizard: explanation language, goal, specialty, resume, vacancy, level, deadline, interview stages, stack, weak spots. After every step it offers the next one as buttons — nothing to memorize.
 - **A plan that subtracts what you already know.** Topics come from your resume, the vacancy and the specialty profile, ranked by priority. You strike out what you know or don't need; progress is counted only on what is left.
-- **Deep lessons.** Each topic gets a lesson in a fixed structure (in short / how it works / where it breaks / interview Q&A / check yourself), retold from classic sources such as *Designing Data-Intensive Applications*, Fowler and Evans, with depth scaled by priority.
+- **Deep lessons.** Each topic gets a lesson in a fixed structure (in short / how it works / where it breaks / interview Q&A / check yourself / sources), retold from classic sources such as *Designing Data-Intensive Applications*, Fowler and Evans, with depth scaled by priority.
+- **Fact-checked lessons.** Every lesson and system design case is checked claim by claim against primary sources — the documentation of your versions, RFCs, book chapters — by a separate agent where possible. Sources link to the exact sections; anything that could not be confirmed is marked ⚠ on the page, and each lesson shows whether and when it was checked.
 - **System design practice.** Each case is a plan for the conversation, not a worked answer: functional and non-functional requirements, what to ask the interviewer and how to lead the talk, what to watch for in the implementation — plus a fundamentals section picked for your stack.
 - **Your stories and answers.** STAR stories from your own experience and ready-to-say answers ("tell me about yourself", "why are you leaving", salary expectations).
 - **English trainer built from your own material.** Frequency analysis of your lessons, stories and answers; quick "check what you know" rounds by frequency band; a spaced-repetition trainer that asks every word four ways (pick the English, pick the translation, recall the English, recall the translation); the most important words come first, in decks of 50.
@@ -17,29 +18,43 @@
 
 ## Install
 
-### Claude Code
+### Claude app (chat / Cowork) — no terminal
+
+1. Open **[Customize → Plugins](https://claude.ai/customize/plugins)** → **Add** → **Add marketplace**.
+2. Paste `firstpilotpirx/offerbook-interview-prep` (or the full GitHub link) and confirm.
+3. Find **Offerbook** in **Discover** and install it.
+4. In a new chat type `/offerbook-start`.
+
+Updates: **Manage plugins** → the `offerbook` marketplace → **Check for updates**, or turn on **Sync automatically**. Then run `/offerbook-update` — your prep data is kept.
+
+No GitHub access? Download `offerbook-interview-prep.zip` from the latest [release](https://github.com/firstpilotpirx/offerbook-interview-prep/releases/latest) and use **Customize → Plugins → Add → Upload plugin**.
+
+### Claude Code — inside a session (desktop app, VS Code, JetBrains or the CLI)
+
+Type in the chat:
+
+```
+/plugin marketplace add firstpilotpirx/offerbook-interview-prep
+/plugin install offerbook-interview-prep@offerbook
+```
+
+Update later: `/plugin marketplace update offerbook`, then `/offerbook-update`.
+
+### Claude Code — from a shell
 
 ```bash
 claude plugin marketplace add firstpilotpirx/offerbook-interview-prep
 claude plugin install offerbook-interview-prep@offerbook
-```
-
-From a local clone you don't need to type anything yourself: open Claude Code and say *"install the interview prep plugin from ~/path/to/offerbook-interview-prep"*. The agent runs `install.sh`, which registers the folder as the `offerbook` marketplace, installs the plugin, prepares the Python environment and starts the wizard right away.
-
-Update later:
-
-```bash
+# update later
 claude plugin marketplace update offerbook
 claude plugin update offerbook-interview-prep@offerbook
 ```
 
-### Claude app (chat / Cowork)
-
-Download `offerbook-interview-prep.zip` from the latest [release](https://github.com/firstpilotpirx/offerbook-interview-prep/releases/latest), then **Customize → Plugins** → upload it. For a new version, upload the new zip the same way. Your prep data is not touched; run `/offerbook-update` afterwards.
+From a local clone you can also just tell Claude Code *"install the interview prep plugin from ~/path/to/offerbook-interview-prep"*: it runs `install.sh`, which registers the folder as the `offerbook` marketplace, installs the plugin, prepares the Python environment and starts the wizard.
 
 ### Share it with someone
 
-Send them this repository link. Claude Code users run the two `claude plugin` commands above; app users take the zip from the latest release. Nothing else is needed: the plugin sets up its Python environment on first run.
+Send them the repository link: <https://github.com/firstpilotpirx/offerbook-interview-prep>. In the Claude app they add it as a marketplace (above); in Claude Code they type the two `/plugin` lines. The plugin sets up its Python environment on first run.
 
 ### Commands
 

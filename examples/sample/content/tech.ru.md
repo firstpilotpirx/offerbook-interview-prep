@@ -49,11 +49,11 @@ public class TransferService {
 - **Почему не работает вызов метода изнутри класса?** Вызов `this.method()` идёт напрямую к объекту, минуя прокси, поэтому аннотация не срабатывает. Решения: вынести метод в отдельный бин, внедрить себя через прокси или использовать TransactionTemplate.
 - **Откатится ли транзакция на checked-исключении?** По умолчанию нет — откат только на RuntimeException и Error. Нужно `rollbackFor = Exception.class` или своё непроверяемое исключение.
 - **Чем REQUIRED отличается от REQUIRES_NEW?** REQUIRED присоединяется к существующей транзакции — если внутри что-то упадёт, откатится всё. REQUIRES_NEW приостанавливает внешнюю и открывает свою — например, чтобы записать аудит, даже если основная операция откатится. Цена — второе соединение с базой.
-- **Что даёт readOnly = true?** Подсказку: Hibernate не делает dirty checking и flush, драйвер может отправить запрос на реплику. Это не запрет записи на уровне базы — зависит от драйвера и базы.
+- **Что даёт readOnly = true?** Подсказку: Hibernate не делает dirty checking и flush, драйвер может отправить запрос на реплику [verify] — зависит от драйвера и настройки маршрутизации, в документации Spring этого нет. Это не запрет записи на уровне базы — зависит от драйвера и базы.
 
 ### Ловушки
 
-- Аннотация на приватном методе молча ничего не делает (проверь для своей версии Spring, какие модификаторы поддерживаются).
+- Аннотация на приватном методе молча ничего не делает. С Spring 6.0 при прокси на классах (CGLIB) работают и `protected`, и package-private методы; при прокси на интерфейсах — только `public` из интерфейса.
 - Исключение поймали внутри метода и не пробросили — транзакция зафиксируется.
 - Долгий внешний вызов (HTTP, Kafka) внутри транзакции держит соединение из пула — под нагрузкой пул кончается.
 - `@Transactional` на методе, который отправляет сообщение в Kafka: сообщение уйдёт, даже если транзакция потом откатится. Нужен outbox или транзакционный продюсер.
@@ -70,4 +70,7 @@ public class TransferService {
 
 ### Источники
 
-- Spring Framework Reference — Transaction Management (проверь перед собесом раздел про propagation для своей версии).
+- [Spring Framework Reference — Using @Transactional](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html)
+- [Spring Framework Reference — Transaction Propagation](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html)
+- [Spring Framework Reference — Rolling Back a Declarative Transaction](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/rolling-back.html)
+- [Spring Boot Reference — Aspect-Oriented Programming](https://docs.spring.io/spring-boot/reference/features/aop.html)

@@ -3,6 +3,7 @@ company: acme
 vacancy: Senior Backend Engineer
 lang: en
 ---
+<!-- Fictional example (examples/README.md): names, companies and numbers are invented placeholders. -->
 Dear Acme Payments team,
 
 I am applying for the Senior Backend Engineer role. For the last few years I have built real-time data infrastructure where losing or double-processing an event is not an option — the same property your payment pipeline depends on.

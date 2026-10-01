@@ -60,6 +60,7 @@ From `actions` (`whats_new.py`):
 | `ask:<question>` | ask this wizard question with buttons (`languages` — step 0, `english-train` — step 9), write the answer to `prep/answers.yaml` |
 | `offer:theory` | the "Foundations" screen (`outline` module, step 2½) — add theory for the stack |
 | `offer:rescore_words` | "Recalculate word importance using the new method?" → `run score_words.py prep/words.yaml content/` (card ids do not change, progress stays) |
+| `offer:verify` | "Check the existing lessons against sources?" → `build` module, `mode: verify` with `run content.py unverified` (key lessons first) |
 | `profile_topics` | `outline` module, `mode: update`: show new profile topics as a list of "add / skip" buttons; do not touch what is marked done or excluded |
 | `rebuild_page` | step 6 |
 

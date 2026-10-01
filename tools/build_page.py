@@ -66,12 +66,24 @@ def fold_answers(html_text: str) -> str:
     return QA_BLOCK.sub(block, html_text)
 
 
+def verified_map(root: Path) -> dict:
+    """Fact-check state per lesson for the page badge (content.py verify / unverified)."""
+    try:
+        import content as ct
+        return {k: {"s": v["state"], "d": v["date"], "n": v["sources"], "o": v["open"]} for k, v in ct.verify_state(root).items()}
+    except Exception as e:
+        print(f"verified: {e}", file=sys.stderr)
+        return {}
+
+
 def md_to_html(text: str) -> str:
     def term(m):
         t, label = m.group(1).strip(), (m.group(2) or m.group(1)).strip()
         return f'<a class="term" href="#" data-term="{html.escape(t, quote=True)}">{html.escape(label)}</a>'
     text = LINK.sub(term, text)
-    return fold_answers(markdown.markdown(text, extensions=["fenced_code", "tables", "sane_lists"]))
+    html_ = fold_answers(markdown.markdown(text, extensions=["fenced_code", "tables", "sane_lists"]))
+    # a claim that could not be confirmed during the fact-check: shown as a warning mark on the page
+    return re.sub(r"\[verify\]", '<mark class="vfy" data-vfy="1">⚠</mark>', html_, flags=re.I)
 
 
 def load_content(root: Path, langs: list) -> dict:
@@ -297,6 +309,7 @@ def main() -> int:
         "setup": setup_state(root, outline, companies, deck, P),
         "outline": slim(outline.get("nodes")),
         "content": load_content(root, LANGS),
+        "verified": verified_map(root),
         "deck": deck,
         "companies": companies,
         "documents": documents(root, companies, args.pdf),

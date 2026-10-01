@@ -165,6 +165,7 @@ Files in `prep/` and material skeletons are **never edited by hand** — only by
 | Company, stage, interview question, HR call, status | `run company.py add / stage / question / log / set / contact / vacancy` |
 | Skeleton for a lesson, case, story, answer | `run content.py scaffold <section> <topic id> [--kind …]` |
 | Which topics have no material | `run content.py missing [--priority 1]` |
+| Record a fact-check · which lessons are not checked | `run content.py verify <topic id> --source <url> …` · `content.py unverified [--priority 1]` |
 | Frequency analysis, candidates, selection, cards, rounds | `run word_freq.py` · `rank_words.py` · `words.py filter / add / round` · `score_words.py` |
 | Translate the page interface into another language | `run i18n.py dump` → translate → `i18n.py merge <file>` |
 | Versions, backup, migration, rollback | `run migrate.py` · `backup.py` · `whats_new.py` |
