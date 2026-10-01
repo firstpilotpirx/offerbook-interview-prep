@@ -43,11 +43,18 @@ run content.py --dir <folder> scaffold <section> <topic id>     # block skeleton
 
 The skeleton is the standard's headings in the explanation language (`templates/lesson/skeletons.yaml`) plus "write" markers. Fill it with text, then `run depth.py --dir <folder>`: until the skeleton is written, the check will not pass it.
 
-## Accuracy
+## Accuracy — every lesson is fact-checked
 
-- Facts about versions, APIs, limits, defaults and prices you are not sure of get a "verify before the interview" mark. No need to fetch to verify: that costs tokens.
-- Sources in a lesson — one line without links (book, chapter, or documentation section).
-- Do not invent: if you do not know for sure — a mark, not a confident statement.
+A lesson is not done when it is written; it is done when its facts were compared with primary sources. People learn from these pages for an interview: a confident wrong default or limit is worse than no lesson. Do not skip the check to save tokens — save tokens by checking well (batched, one fetch per doc section), not by not checking.
+
+1. **While writing.** Start from the profile's source registry (`sources` in `profiles/<profile>.yaml`: official docs, RFCs, books) and the versions from the stack (`answers.yaml`). Write only what you can back up. Numbers, defaults, limits, config keys, API names, complexity, consistency guarantees and version-specific behaviour are the claims that must be checked.
+2. **Fact-check pass** (`mode: verify` below, or right after writing a batch). Prefer a separate agent that did not write the text. Claim by claim, against the primary source; fix what is wrong.
+3. **Sources section** in every lesson and system design case: 1–5 bullets, each a link to the exact documentation section (the docs of the person's version when the docs are versioned) or "Author, *Book*, ch. N". Not "Spring docs" but the page you actually checked.
+4. **What could not be confirmed** stays only as a clearly marked claim: `[verify]` right after it plus a short reason ("changed in 3.x, docs unclear"). The page shows it as ⚠, the person sees exactly what to double-check. Never leave an unconfirmed claim unmarked.
+5. **Record the check**: `run content.py verify <topic id> --source <url> [--source …] [--by subagent]`. It stores the date, the sources, the number of `[verify]` marks and a hash of the text; editing the block later makes the record stale, so a changed lesson needs a new check.
+6. **No web access in this session** (no WebFetch / WebSearch): say so in one line, write from knowledge with sources as book chapters, and do not record a check. The lesson stays "not fact-checked" on the page and in the menu until a session with web access checks it.
+
+The person's own stories, answers and questions to ask are not fact-checked: they are their material.
 
 ## Page
 
@@ -73,6 +80,7 @@ If the template itself needs changing (a new tab, a different look), that is a c
 ```bash
 run validate_profiles.py
 run validate_content.py --dir .            # checks every chosen language; --require-en also requires the English companion
+run content.py --dir . unverified           # lessons without a current fact-check — check them before publishing
 run validate_content.py --dir . --update-lock   # after the first successful build
 ```
 
@@ -96,3 +104,14 @@ The hub passes `args.topics` — topics that failed `run depth.py`. For each, to
 3. After every 3–5 topics — `run depth.py --dir <folder>` and `run build_page.py --dir <folder>`: the person sees the lessons fill up.
 
 Block ids do not change — "done" marks are preserved.
+
+## Check the facts (`mode: verify`)
+
+The hub passes `args.topics` — lessons without a current fact-check (`run content.py unverified --priority 1` for the full list; key ones first).
+
+1. Take the topics in batches of 3–5. For each batch start a fact-checking subagent (Agent tool) that did not write the lessons, with: the block texts, the person's versions (`answers.yaml`), the profile's source registry, and the task "list every checkable claim (versions, defaults, limits, config keys, API names, complexity, guarantees, numbers, attributions to books); check each against the primary source with WebFetch/WebSearch; answer per claim: correct / wrong → correct statement / unconfirmed, with the URL of the section you checked". No subagents in this session — do the same pass yourself.
+2. Fix the wrong claims in the block. Rewrite unconfirmed ones as version-dependent or mark them `[verify]` with the reason.
+3. Fill `### Sources` with the sections actually checked (links) and book chapters.
+4. `run content.py verify <id> --source <url> … --by subagent` for each block.
+5. After every batch: `run validate_content.py --dir <folder>` and `run build_page.py --dir <folder>` — the lessons on the page get the "fact-checked" badge.
+6. One-line summary: how many lessons checked, how many claims fixed, how many still marked ⚠.

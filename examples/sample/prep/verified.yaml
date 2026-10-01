@@ -1,0 +1,12 @@
+# Fictional example (examples/README.md): the fact-check record of the sample lessons.
+blocks:
+  tech.frameworks.transactional:
+    date: '2026-10-01'
+    hash: 069a0158a950
+    sources:
+    - https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html
+    - https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html
+    - https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/rolling-back.html
+    - https://docs.spring.io/spring-boot/reference/features/aop.html
+    open: 1
+    by: self

@@ -37,9 +37,9 @@ The headings are matched by `tools/depth.py`, so use these exact words in the le
 5. `### When to choose what` (RU: `### Когда что выбирать`) — if there are alternatives: a comparison table.
 6. `### From your experience` (RU: `### Из вашего опыта`) — a bridge to the person's CV: which of their projects fits here and one or two sentences on how to tell it. Only facts from the CV and answers.
 7. `### Check yourself` (RU: `### Проверь себя`) — **required for priorities 1–2.** 3–5 questions in the same format `- **Question?** Short answer` — collapsed on the page.
-8. `### Sources` (RU: `### Источники`) — **one line without links**: "From the book: Kleppmann, DDIA, ch. 7; Spring Reference — Transactions". Do not fetch anything for sources: people don't follow the links, and tokens get spent. Versions, limits, prices, defaults you are not sure of — mark "verify before the interview".
+8. `### Sources` (RU: `### Источники`) — **required.** 1–5 bullets, each a link to the exact section you checked the facts against (official docs of the person's version, the RFC, the spec) or "Author, *Book*, ch. N" for concepts. Every lesson is fact-checked against them before it counts as done (`modules/build.md`, "Accuracy"); a claim that could not be confirmed is marked `[verify]` with the reason and shows as ⚠ on the page.
 
-Required by `depth.py`: priority 1–2 — In short, How it works, Interview Q&A, Check yourself (RU: Суть, Как устроено, Вопросы на интервью, Проверь себя); priority 3 — In short, Interview Q&A (RU: Суть, Вопросы на интервью).
+Required by `depth.py`: priority 1–2 — In short, How it works, Interview Q&A, Check yourself (RU: Суть, Как устроено, Вопросы на интервью, Проверь себя); priority 3 — In short, Interview Q&A (RU: Суть, Вопросы на интервью). Required by `validate_content.py` for every lesson and system design case: Sources, and a current fact-check record (`content.py verify`).
 
 **EN companion** (a short English version next to a lesson in another language, for interviews in English): `### In short` (the gist, how to say it), `### Interview Q&A` (questions in the same format), optionally `### Key phrases`. It is not a translation of the lesson but what is said out loud.
 
@@ -79,7 +79,7 @@ Books — from the profile registry (`sources`): Kleppmann "Designing Data-Inten
 - Numbers — **in orders of magnitude** and rounded: "read from memory ~100 ns, from SSD ~100 µs, within a data center ~0.5 ms, between continents ~100 ms".
 - Every topic has a worked back-of-the-envelope example: "10M DAU × 20 actions = 200M per day ≈ 2,300 RPS on average, ×5–10 at peak".
 - Reliability — a table of nines in minutes of downtime per month and per year; components in series multiply availability, parallel ones multiply the complements (failure probabilities).
-- Cost — only orders of magnitude and relative comparison (what grows more expensive: traffic, storage, compute); specific prices — "verify before the interview", they change.
+- Cost — only orders of magnitude and relative comparison (what grows more expensive: traffic, storage, compute); a specific price only with the pricing page as a source and the date, otherwise mark it `[verify]` — prices change.
 - In "Interview Q&A" — how to state assumptions out loud.
 
 ## System design problems (design.cases.*)
@@ -143,7 +143,7 @@ The current transaction is stored in a `ThreadLocal` — it is bound to the thre
 
 ### Pitfalls
 
-- The annotation on a private method silently does nothing (verify which modifiers your Spring version supports).
+- The annotation on a private method silently does nothing with proxy-based transactions; since Spring 6.0 protected and package-private methods are supported for class-based proxies.
 - An exception caught inside the method and not rethrown — the transaction commits.
 - A long external call (HTTP, Kafka) inside a transaction holds a pool connection — under load the pool runs out.
 - `@Transactional` on a method that sends a message to Kafka: the message goes out even if the transaction later rolls back. You need an outbox or a transactional producer.
@@ -160,7 +160,9 @@ In the indexer you wrote events in batches. A good story: why a batch is written
 
 ### Sources
 
-- Spring Framework Reference — Transaction Management (verify the propagation section for your version before the interview).
+- [Spring Framework Reference — Using @Transactional](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html)
+- [Spring Framework Reference — Transaction Propagation](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html)
+- [Spring Framework Reference — Rolling Back a Declarative Transaction](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/rolling-back.html)
 ```
 
 ### EN companion of the same block

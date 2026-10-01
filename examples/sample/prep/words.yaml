@@ -1,3 +1,4 @@
+# Fictional example (examples/README.md): names, companies and numbers are invented placeholders.
 version: 1
 built: 2026-09-30
 group_size: 50
@@ -17,7 +18,7 @@ words:
     used_in: [tech.services.messaging, stories.indexer, answers.pitch]
     ex:
       - { en: The consumers could not keep up with the Kafka topic., ru: Консьюмеры не успевали за топиком Kafka., about: system, from: tech.services.messaging }
-      - { en: Our indexer keeps up with the chain head on all 9 networks., ru: Наш индексатор не отстаёт от головы цепи во всех 9 сетях., about: personal, from: stories.indexer }
+      - { en: Our indexer keeps up with the chain head on all <N> networks., ru: Наш индексатор не отстаёт от головы цепи во всех <N> сетях., about: personal, from: stories.indexer }
       - { en: I read tech blogs to keep up with new tools., ru: "Я читаю техблоги, чтобы следить за новыми инструментами.", about: work }
   - id: "w:the-trade-off-is"
     en: the trade-off is
@@ -31,8 +32,8 @@ words:
       - { en: We wait for more confirmations. The trade-off is higher latency., ru: Мы ждём больше подтверждений. Минус — выше задержка., about: personal, from: stories.indexer }
       - { en: It is simple to build. The trade-off is less flexibility., ru: Это просто сделать. Минус — меньше гибкости., about: work }
 verbs:
-  - { id: "v:be", inf: be, past: was / were, pp: been, ru: быть, ex: I have been a backend developer for 12 years., used_in: [answers.pitch] }
+  - { id: "v:be", inf: be, past: was / were, pp: been, ru: быть, ex: I have been a backend developer for <N> years., used_in: [answers.pitch] }
 phrases:
   - { id: "p:consumers-could-not-keep-up", en: The consumers could not keep up with the Kafka topic., ru: Консьюмеры не успевали за топиком Kafka., g: 1, word: "w:keep-up-with", from: tech.services.messaging }
 answers:
-  - { id: "a:pitch-1", prompt_ru: "Я backend-разработчик, 12 лет", en: I have been a backend developer for 12 years., from: answers.pitch }
+  - { id: "a:pitch-1", prompt_ru: "Я backend-разработчик, <N> лет", en: I have been a backend developer for <N> years., from: answers.pitch }

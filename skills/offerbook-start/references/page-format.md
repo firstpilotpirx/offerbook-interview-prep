@@ -50,7 +50,7 @@ Rules:
 - Order: stages by `order`, then cross-cutting sections (◇).
 - Any node with children collapses via the arrow or the heading; on first open only the first stage is expanded.
 - During search everything expands; matches are searched in headings and materials in both languages.
-- A leaf is a topic: "done" checkbox, heading, tags, a "what they'll ask" line, "Material" and "Exclude" («Материал», «Исключить») buttons. On narrow screens the buttons become icons ▤ ⊘. An open lesson has a **Copy** button (top right): the topic title, the "what they'll ask" line and the whole lesson as Markdown-like text (`toText`), for pasting into a new chat; clipboard API first, then a hidden textarea, then a download.
+- A leaf is a topic: "done" checkbox, heading, tags, a "what they'll ask" line, "Material" and "Exclude" («Материал», «Исключить») buttons. On narrow screens the buttons become icons ▤ ⊘. An open lesson shows its fact-check badge (from `content.py verify`: ✓ checked · date · number of sources; ⚠ edited after the check or claims left unconfirmed; ○ not checked) and claims marked `[verify]` as ⚠ with a tooltip. It also has a **Copy** button (top right): the topic title, the "what they'll ask" line and the whole lesson as Markdown-like text (`toText`), for pasting into a new chat; clipboard API first, then a hidden textarea, then a download.
 
 ## Tabs
 

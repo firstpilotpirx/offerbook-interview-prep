@@ -250,7 +250,13 @@
     "trkGoals": "Нормы на день",
     "trkFilter": "Показать темы трека",
     "trkDone": "всё пройдено",
-    "trkNoGoal": "нормы не заданы"
+    "trkNoGoal": "нормы не заданы",
+    "vfOk": "Проверено по источникам",
+    "vfOpen": "Проверено, но есть неподтверждённые места",
+    "vfStale": "Изменено после проверки",
+    "vfNone": "Ещё не проверено по источникам",
+    "vfMark": "Не удалось подтвердить по источникам — уточните перед интервью",
+    "vfSources": "источн."
   },
   "en": {
     "plan": "Plan",
@@ -503,6 +509,12 @@
     "trkGoals": "Daily goals",
     "trkFilter": "Show this track's topics",
     "trkDone": "all done",
-    "trkNoGoal": "no goals set"
+    "trkNoGoal": "no goals set",
+    "vfOk": "Fact-checked against sources",
+    "vfOpen": "Fact-checked, some claims unconfirmed",
+    "vfStale": "Edited after the fact-check",
+    "vfNone": "Not fact-checked yet",
+    "vfMark": "Could not be confirmed by sources — check before the interview",
+    "vfSources": "sources"
   }
 }

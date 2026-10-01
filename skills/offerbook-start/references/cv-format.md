@@ -33,9 +33,9 @@ prep/companies/<id>/cv.en.yaml        vacancy-tailored version — a copy of the
   role: Senior Backend Engineer / Tech Lead
   start: 2019-06
   end: present
-  product: "History indexer and token database behind a wallet app with 500k monthly users"
+  product: "History indexer and token database behind a wallet app with <N> monthly users"
   achievements:
-    - text: "Cut p95 latency of the token API from 900 ms to 120 ms by moving hot reads to Redis"
+    - text: "Cut p95 latency of the token API from <X> ms to <Y> ms by moving hot reads to Redis"
       story: stories.indexer                # where this is told in detail in the plan
   stack: [TypeScript, PostgreSQL, Kafka]
 ```

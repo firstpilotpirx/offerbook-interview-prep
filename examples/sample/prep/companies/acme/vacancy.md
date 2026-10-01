@@ -1,3 +1,4 @@
+<!-- Fictional example (examples/README.md): names, companies and numbers are invented placeholders. -->
 # Senior Backend Engineer — Acme Payments
 
 We build real-time payment infrastructure for EU merchants.

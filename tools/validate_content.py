@@ -16,6 +16,9 @@ Checks:
   • every section exists in each page language with the same ids (tools/langs.py: chosen
     languages are required; an English companion for English training — warning, error with --require-en);
   • frontmatter: last_verified is present and not older than --max-age days;
+  • fact-check (lessons and system design cases, not the person's stories/answers): a Sources section
+    with links or book chapters, a record in prep/verified.yaml that matches the current text
+    (content.py verify), no claims left marked [verify] — warnings, errors with --require-verified;
   • block ids exist in the outline, and every non-skipped leaf topic has material;
   • the deck matches schemas/words.schema.json, ids are unique, used_in / from point to real topics;
   • [[term]] links in English materials point to a card (by the en field);
@@ -95,6 +98,8 @@ def main() -> int:
     ap.add_argument("--require-en", action="store_true", help="the English companion is required too (interview in English)")
     ap.add_argument("--max-age", type=int, default=365, help="how many days last_verified counts as fresh")
     ap.add_argument("--update-lock", action="store_true")
+    ap.add_argument("--require-verified", action="store_true",
+                    help="lessons without sources or without a current fact-check record are an error")
     ap.add_argument("--require-depth", action="store_true",
                     help="shallow materials are an error (standard: references/material-format.md, script depth.py)")
     args = ap.parse_args()
@@ -171,6 +176,18 @@ def main() -> int:
                 (warn if soft else err)(name, f"missing in .{lang}.md: {', '.join(miss)}")
             if extra:
                 err(name, f"missing in .{P}.md: {', '.join(extra)}")
+
+    # ---- fact-check: sources and a current record for every lesson (content.py verify / unverified)
+    import content as ct
+    vs = ct.verify_state(root)
+    bad = (err if args.require_verified else warn)
+    no_src = sorted(k for k, v in vs.items() if not v["has_sources"])
+    if no_src:
+        bad("sources", f"no Sources section ({len(no_src)}): {', '.join(no_src[:8])}{' …' if len(no_src) > 8 else ''}")
+    for state, label in (("none", "not fact-checked"), ("stale", "edited after the fact-check"), ("open", "claims still marked [verify]")):
+        ids = sorted(k for k, v in vs.items() if v["state"] == state)
+        if ids:
+            bad("fact-check", f"{label} ({len(ids)}): {', '.join(ids[:8])}{' …' if len(ids) > 8 else ''}")
 
     for leaf in sorted(leaves - skipped - content_ids):
         warn("materials", f"topic «{leaf}» has no material")

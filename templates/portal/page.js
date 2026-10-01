@@ -575,9 +575,17 @@ function drawLeaf(n){
     var html = CONTENT[ui.lang] && CONTENT[ui.lang][n.id], other = ui.lang === P ? (LANGS[1] || P) : P;
     if (!html && CONTENT[other] && CONTENT[other][n.id]){ mat.appendChild(el('div', 'fallback', L().noTranslation)); html = CONTENT[other][n.id]; }
     var body = el('div'); body.innerHTML = html || '<p class="empty">' + L().noMaterial + '</p>';
+    body.querySelectorAll('mark.vfy').forEach(function(m){ m.title = L().vfMark; m.setAttribute('aria-label', L().vfMark); });
+    var vf = (D.verified || {})[n.id];
+    if (html && vf){   // fact-check badge: checked against sources, with date and count, or a warning
+      var cls = vf.s === 'ok' ? 'ok' : (vf.s === 'none' ? 'none' : 'warn');
+      var txt = vf.s === 'ok' ? '✓ ' + L().vfOk : vf.s === 'open' ? '⚠ ' + L().vfOpen + (vf.o ? ' (' + vf.o + ')' : '') : vf.s === 'stale' ? '⚠ ' + L().vfStale : '○ ' + L().vfNone;
+      if (vf.d && vf.s !== 'none') txt += ' · ' + fmtDate(vf.d) + (vf.n ? ' · ' + vf.n + ' ' + L().vfSources : '');
+      var badge = el('span', 'vf-badge ' + cls, txt);
+    }
     if (html){
       // copy the whole lesson — title, the "what they'll ask" line and the text — to paste into a new chat
-      var bar = el('div', 'mat-tools'), cp = el('button', 'chip', '⧉ ' + L().copy); cp.type = 'button';
+      var bar = el('div', 'mat-tools'); bar.appendChild(badge || el('span')); var cp = el('button', 'chip', '⧉ ' + L().copy); cp.type = 'button';
       cp.onclick = function(e){
         e.stopPropagation();
         var ask = ui.lang !== P && n['summary_' + ui.lang] ? n['summary_' + ui.lang] : n.summary;
