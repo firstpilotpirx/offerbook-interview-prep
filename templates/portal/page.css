@@ -294,6 +294,10 @@ a.term{color:var(--accent);text-decoration:underline dotted;text-underline-offse
 .tr-acts .btn[data-key="next"]{position:relative;overflow:hidden}
 .tr-acts .btn[data-key="next"].counting::after{content:'';position:absolute;left:0;bottom:0;height:4px;width:100%;background:currentColor;opacity:.45;transform-origin:left;animation:tr-count var(--auto,2000ms) linear forwards}
 @keyframes tr-count{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.tts-pause{display:flex;align-items:center;gap:8px}
+.tts-pause.tr-keys{justify-content:center}
+.tts-pause input{width:160px;accent-color:var(--accent)}
+.tts-pause b{min-width:44px;font-family:var(--mono);color:var(--ink)}
 .tts-opts{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
 .tr-play{max-width:720px;margin:0 auto}
 .tr-hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}

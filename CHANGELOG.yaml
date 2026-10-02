@@ -7,6 +7,16 @@
 #   profile_topics      the profile changed — show the new topics and offer to add them (outline, mode update)
 # data_version — data format version after this version (tools/migrate.py).
 
+- version: "0.13.9"
+  date: 2026-10-02
+  data_version: 4
+  notes:
+    ru:
+      - "Пауза перед автопереходом к следующей карточке настраивается: от 0 до 5 секунд с шагом 0,1 — ползунок в настройках тренажёра и прямо под карточкой во время подхода."
+    en:
+      - "The pause before auto-advancing to the next card is adjustable: 0–5 seconds in steps of 0.1 — a slider in the trainer settings and right under the card during a round."
+  actions: []
+
 - version: "0.13.8"
   date: 2026-10-02
   data_version: 4
