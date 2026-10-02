@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="{{ cv.lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ cv.basics.name }} — {{ cv.basics.title }}</title>
+<style>
+/* CV template. One column, no tables or images, so ATS systems can read it.
+   Section order is fixed: header → summary → skills → experience → projects → education → certifications → languages.
+   A4, 16 mm margins, print to PDF from the browser or with tools/build_cv.py --pdf. */
+@page{size:A4;margin:16mm 16mm 14mm}
+:root{--ink:#1b2530;--muted:#56646f;--line:#cfd8de;--accent:#245d70}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:10.5pt/1.42 "Helvetica Neue",Arial,"Liberation Sans",sans-serif;background:#fff}
+.page{max-width:180mm;margin:0 auto;padding:12mm 0}
+@media print{.page{padding:0}}
+h1{font-size:21pt;margin:0;line-height:1.1}
+.title{font-size:12pt;color:var(--accent);font-weight:600;margin-top:2px}
+.contacts{color:var(--muted);font-size:9.5pt;margin-top:4px}
+.contacts a{color:inherit;text-decoration:none}
+h2{font-size:10pt;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:2px;margin:14px 0 6px}
+p{margin:0}
+.skills div{margin:1px 0}.skills b{font-weight:600}
+.job{margin:0 0 9px;break-inside:avoid-page}
+.job-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.job-head .role{font-weight:700}
+.job-head .dates{color:var(--muted);font-size:9.5pt;white-space:nowrap}
+.job .co{color:var(--muted)}
+.job .product{font-style:italic;color:var(--muted);margin:1px 0 2px}
+ul{margin:2px 0 0;padding-left:15px}li{margin:1px 0}
+.stack{color:var(--muted);font-size:9.5pt;margin-top:2px}
+.row{display:flex;justify-content:space-between;gap:12px}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>{{ cv.basics.name }}</h1>
+    <div class="title">{{ cv.basics.title }}</div>
+    <div class="contacts">
+      {%- set b = cv.basics -%}
+      {%- if b.location %}<span>{{ b.location }}</span> · {% endif -%}
+      {%- if b.work %}<span>{{ b.work }}</span> · {% endif -%}
+      <a href="mailto:{{ b.email }}">{{ b.email }}</a>
+      {%- if b.phone %} · <span>{{ b.phone }}</span>{% endif -%}
+      {%- for l in b.links or [] %} · <a href="{{ l.url }}">{{ l.label }}</a>{% endfor -%}
+    </div>
+  </header>
+
+  <h2>{{ t.summary }}</h2>
+  <p>{{ cv.summary }}</p>
+
+  <h2>{{ t.skills }}</h2>
+  <div class="skills">
+    {%- for s in cv.skills %}
+    <div><b>{{ s.group }}:</b> {{ s['items']|join(', ') }}</div>
+    {%- endfor %}
+  </div>
+
+  <h2>{{ t.experience }}</h2>
+  {%- for j in cv.experience %}
+  <section class="job">
+    <div class="job-head">
+      <div><span class="role">{{ j.role }}</span> · <span>{{ j.company }}</span>{% if j.location %}<span class="co"> · {{ j.location }}</span>{% endif %}</div>
+      <div class="dates">{{ j.start|month(cv.lang) }} – {{ (j.end or 'present')|month(cv.lang) }}</div>
+    </div>
+    {%- if j.about %}<div class="co">{{ j.about }}</div>{% endif %}
+    {%- if j.product %}<div class="product">{{ j.product }}</div>{% endif %}
+    <ul>
+      {%- for a in j.achievements %}
+      <li>{{ a.text }}</li>
+      {%- endfor %}
+    </ul>
+    {%- if j.stack %}<div class="stack">{{ t.stack }}: {{ j.stack|join(', ') }}</div>{% endif %}
+  </section>
+  {%- endfor %}
+
+  {%- if cv.projects %}
+  <h2>{{ t.projects }}</h2>
+  {%- for p in cv.projects %}
+  <div class="job"><b>{{ p.name }}</b>{% if p.url %} · <a href="{{ p.url }}">{{ p.url|replace('https://','') }}</a>{% endif %} — {{ p.text }}{% if p.stack %}<div class="stack">{{ t.stack }}: {{ p.stack|join(', ') }}</div>{% endif %}</div>
+  {%- endfor %}
+  {%- endif %}
+
+  {%- if cv.education %}
+  <h2>{{ t.education }}</h2>
+  {%- for e in cv.education %}
+  <div class="row"><div><b>{{ e.school }}</b>{% if e.degree %} — {{ e.degree }}{% endif %}</div><div class="dates">{{ e.start or '' }}{% if e.end %} – {{ e.end }}{% endif %}</div></div>
+  {%- endfor %}
+  {%- endif %}
+
+  {%- if cv.certifications %}
+  <h2>{{ t.certifications }}</h2>
+  <ul>{% for c in cv.certifications %}<li>{{ c }}</li>{% endfor %}</ul>
+  {%- endif %}
+
+  {%- if cv.languages %}
+  <h2>{{ t.languages }}</h2>
+  <p>{% for l in cv.languages %}{{ l.name }} — {{ l.level }}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+  {%- endif %}
+</div>
+</body>
+</html>

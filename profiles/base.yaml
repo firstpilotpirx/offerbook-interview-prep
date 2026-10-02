@@ -1,0 +1,354 @@
+# Base profile: what every IT role has in common.
+# It cannot be selected directly (abstract), only inherited.
+# A specialty changes only the differences: extends stages, disables what is not needed, adds questions.
+#
+# English-first: `title`, `summary`, `text`, `label`, `description` are English;
+# Russian goes into the parallel `*_ru` fields. Other explanation languages are
+# translated by the agent at outline time.
+
+id: base
+title: General IT profile
+title_ru: Общий IT-профиль
+version: 3
+abstract: true
+description: >
+  Ten interview stages and five cross-cutting sections. Stages 1–3, 5, 7–10 are nearly the same
+  for any role; the tech stage is defined entirely by the specialty and the vacancy.
+description_ru: >
+  Десять этапов интервью и пять сквозных разделов. Этапы 1–3, 5, 7–10 почти одинаковые
+  для любой роли; этап tech целиком определяется специальностью и вакансией.
+
+levels: [junior, middle, senior, lead]
+
+scope_questions:
+  - id: experience-years
+    text: How many years have you been in software development?
+    text_ru: Сколько лет вы в разработке?
+    type: single
+    required: true
+    infer_from: [resume]
+    options:
+      - { value: "0-2", label: Under 2 years, label_ru: до 2 лет }
+      - { value: "2-5", label: 2–5 years, label_ru: 2–5 лет }
+      - { value: "5-10", label: 5–10 years, label_ru: 5–10 лет }
+      - { value: "10-plus", label: More than 10, label_ru: больше 10 }
+
+  - id: resume
+    text: Resume — a file or a link. If you have none, briefly describe your experience
+    text_ru: Резюме — файл или ссылка. Если нет, коротко опишите опыт
+    type: file
+    required: false
+    after: experience-years
+
+  - id: vacancy
+    text: Vacancy — text, a link or the company name
+    text_ru: Вакансия — текст, ссылка или название компании
+    type: text
+    required: true
+    after: resume
+
+  - id: level
+    text: Position level
+    text_ru: Уровень позиции
+    type: single
+    required: true
+    infer_from: [vacancy]
+    after: vacancy
+    options:
+      - { value: junior, label: Junior, label_ru: Джун }
+      - { value: middle, label: Middle, label_ru: Мидл }
+      - { value: senior, label: Senior, label_ru: Сеньор }
+      - { value: lead, label: Lead, label_ru: Лид }
+
+  - id: stages-known
+    text: Which stages will definitely happen? Unknown ones are included by default
+    text_ru: Какие этапы точно будут? Неизвестные включим по умолчанию
+    type: multi
+    required: false
+    after: level
+    default: unknown
+
+  - id: deadline
+    text: When is the interview?
+    text_ru: Когда интервью?
+    type: single
+    required: true
+    after: stages-known
+    options:
+      - { value: week, label: Within a week, label_ru: В течение недели }
+      - { value: two-weeks, label: In 1–2 weeks, label_ru: Через 1–2 недели }
+      - { value: month, label: In a month, label_ru: Через месяц }
+      - { value: later, label: Later or not sure, label_ru: Позже или не знаю }
+
+  - id: interview-language
+    text: What language is the interview in?
+    text_ru: На каком языке интервью?
+    type: single
+    required: true
+    infer_from: [vacancy]
+    after: deadline
+    options:
+      - { value: native, label: My native language, label_ru: На родном }
+      - { value: english, label: English, label_ru: На английском }
+      - { value: other, label: Another language, label_ru: На другом }
+
+  # Asked ALWAYS, even if the interview is in the native language: English is needed
+  # for future interviews and for reading docs. The recommendation depends on interview-language.
+  - id: english-train
+    text: Improve your English for the interview?
+    text_ru: Подтянуть английский к собеседованию?
+    type: single
+    required: true
+    after: interview-language
+    options:
+      - { value: full, label: "Yes — vocabulary from my stories and the trainer", label_ru: "Да — словарь из моих рассказов и тренажёр" }
+      - { value: texts, label: "Only my answers and stories in English", label_ru: "Только мои ответы и истории на английском" }
+      - { value: "no", label: "No, not needed", label_ru: "Нет, не нужно" }
+
+  - id: english-level
+    text: Your current English level
+    text_ru: Уровень английского сейчас
+    type: single
+    required: true
+    after: english-train
+    when: { answer: { english-train: [full, texts] } }
+    options:
+      - { value: a2, label: "A2 — I read with a dictionary", label_ru: "A2 — читаю со словарём" }
+      - { value: b1, label: "B1 — I understand, speaking is hard", label_ru: "B1 — понимаю, говорю с трудом" }
+      - { value: b2, label: "B2 — I speak, but lack words", label_ru: "B2 — говорю, но не хватает слов" }
+      - { value: c1, label: "C1 — fluent", label_ru: "C1 — свободно" }
+
+  - id: weak-spots
+    text: What worries you, or what haven't you touched in a while?
+    text_ru: Чего опасаетесь или что давно не трогали?
+    type: text
+    required: false
+    after: interview-language
+
+  - id: exclude
+    text: What should be excluded for sure — won't be asked or you know it by heart?
+    text_ru: Что точно исключить — не спросят или знаете назубок?
+    type: text
+    required: false
+    after: weak-spots
+
+  - id: systems
+    text: Which projects are you ready to talk about? What is under NDA?
+    text_ru: О каких проектах готовы рассказывать? Что под NDA?
+    type: text
+    required: false
+    infer_from: [resume]
+    after: exclude
+
+# Study tracks: kinds of work with their own unit and daily goal. Every stage and cross-cutting
+# section belongs to one track (sections). The page shows a ring per track for today and the week,
+# a forecast per track and "everything by the goals — by <date>" from the slowest one.
+# A specialty may override a track by id (goal, sections, titles) or add a new one.
+tracks:
+  - { id: theory, title: Theory, title_ru: Теория, unit: topics, unit_ru: тем, goal: 15,
+      sections: [tech, theory] }
+  - { id: problems, title: Coding problems, title_ru: Задачи, unit: problems, unit_ru: задач, goal: 3,
+      sections: [practice] }
+  - { id: design, title: System design, title_ru: System design, unit: problems, unit_ru: задач, goal: 1,
+      sections: [design] }
+  - { id: soft, title: Soft skills, title_ru: Софт-скиллы, unit: topics, unit_ru: тем, goal: 2,
+      sections: [research, recruiter, experience, behavioral, leadership, final, offer, language, stories, answers, questions] }
+  - { id: words, title: Words, title_ru: Слова, unit: words, unit_ru: слов, goal: 20, kind: words,
+      sections: [trainer] }
+
+stages:
+  - id: research
+    order: 1
+    ask: never
+    title: Research and positioning
+    title_ru: Разведка и позиционирование
+    summary: company, product, vacancy, self-introduction, salary range
+    summary_ru: компания, продукт, вакансия, рассказ о себе, вилка
+    topics:
+      - { id: research.company, title: Company and product, title_ru: Компания и продукт, priority: 1 }
+      - { id: research.vacancy, title: Vacancy breakdown, title_ru: Разбор вакансии, summary: "which requirements are key and which are box-ticking", summary_ru: "какие требования главные, а какие для галочки", priority: 1 }
+      - { id: research.pitch, title: Self-introduction, title_ru: Рассказ о себе, summary: two minutes tailored to this vacancy, summary_ru: две минуты под эту вакансию, priority: 1 }
+      - { id: research.salary, title: Market salary range, title_ru: Вилка на рынке, priority: 2 }
+
+  - id: recruiter
+    order: 2
+    ask: early
+    title: Recruiter screening
+    title_ru: Скрининг с рекрутером
+    summary: motivation, money, work format, start date, language
+    summary_ru: мотивация, деньги, формат, дата выхода, язык
+    topics:
+      - { id: recruiter.motivation, title: Why I'm looking and why you, title_ru: Почему ищу и почему к вам, priority: 1 }
+      - { id: recruiter.money, title: Salary expectations, title_ru: Ожидания по деньгам, priority: 1 }
+      - { id: recruiter.format, title: "Work format, relocation, time zone", title_ru: "Формат, релокация, часовой пояс", priority: 2 }
+      - { id: recruiter.start, title: Start date, title_ru: Дата выхода, priority: 2 }
+      - { id: recruiter.process, title: Questions about the hiring process, title_ru: Вопросы про процесс найма, priority: 2 }
+
+  - id: experience
+    order: 3
+    ask: early
+    title: Experience interview
+    title_ru: Интервью по опыту
+    summary: projects, personal contribution, hard decisions, results
+    summary_ru: проекты, личный вклад, сложные решения, результаты
+    topics:
+      - { id: experience.projects, title: Key projects, title_ru: Ключевые проекты, summary: "what I did myself and what the team did", summary_ru: "что делал лично, а что команда", priority: 1 }
+      - { id: experience.decisions, title: Hard decisions, title_ru: Сложные решения, summary: what I chose and why, summary_ru: что выбирал и почему, priority: 1 }
+      - { id: experience.results, title: Results in numbers, title_ru: Результаты в цифрах, priority: 2 }
+
+  - id: tech
+    order: 4
+    ask: technical
+    title: Technical interview
+    title_ru: Техническое интервью
+    summary: the main personalized node, branches by stack
+    summary_ru: главный персонализируемый узел, ветвится по стеку
+    personalized: true
+    topics: []   # filled in by the specialty
+
+  - id: practice
+    order: 5
+    ask: technical
+    title: Hands-on practice
+    title_ru: Практика
+    summary: live coding, take-home assignment, code review, debugging
+    summary_ru: живой код, домашнее тестовое, ревью, отладка
+    optional: true
+    topics:
+      - { id: practice.live, title: Live coding task, title_ru: Задача в реальном времени, priority: 1 }
+      - { id: practice.homework, title: Take-home assignment and its defense, title_ru: Домашнее тестовое и его защита, priority: 2 }
+      - { id: practice.review, title: Reviewing someone else's work, title_ru: Разбор чужой работы, priority: 3 }
+
+  - id: design
+    order: 6
+    ask: technical
+    title: System and module design
+    title_ru: Проектирование
+    summary: module and system, trade-offs
+    summary_ru: модуль и система, компромиссы
+    optional: true
+    when: { level: [middle, senior, lead] }
+    topics: []   # filled in by the specialty
+
+  - id: behavioral
+    order: 7
+    ask: final
+    title: Behavioral interview
+    title_ru: Поведенческое интервью
+    summary: STAR, conflicts, mistakes, ownership
+    summary_ru: STAR, конфликты, ошибки, ответственность
+    topics:
+      - { id: behavioral.star, title: The STAR format, title_ru: Формат STAR, priority: 1 }
+      - { id: behavioral.conflict, title: Conflicts and disagreements, title_ru: Конфликты и споры, priority: 1 }
+      - { id: behavioral.failure, title: Mistakes and lessons learned, title_ru: Ошибки и что из них вынес, priority: 1 }
+      - { id: behavioral.feedback, title: Feedback, title_ru: Обратная связь, priority: 2 }
+      - { id: behavioral.priorities, title: Priorities and deadlines, title_ru: Приоритеты и сроки, priority: 2 }
+
+  - id: leadership
+    order: 8
+    ask: final
+    title: Leadership
+    title_ru: Лидерство
+    summary: included depending on the position level
+    summary_ru: включается по уровню позиции
+    optional: true
+    when: { level: [senior, lead] }
+    topics:
+      - { id: leadership.planning, title: Planning and decomposition, title_ru: Планирование и декомпозиция, priority: 1 }
+      - { id: leadership.mentoring, title: Mentoring, title_ru: Наставничество, priority: 2 }
+      - { id: leadership.risks, title: Risks and decisions, title_ru: Риски и решения, priority: 2 }
+      - { id: leadership.people, title: People management, title_ru: Управление людьми, priority: 2, when: { level: [lead] } }
+
+  - id: final
+    order: 9
+    ask: final
+    title: Final interview
+    title_ru: Финал
+    summary: manager, team, expectations, success criteria
+    summary_ru: руководитель, команда, ожидания, критерии успеха
+    topics:
+      - { id: final.expectations, title: Goals for the first months, title_ru: Цели на первые месяцы, priority: 1 }
+      - { id: final.team, title: The team and how work is organized, title_ru: Команда и как устроена работа, priority: 2 }
+
+  - id: offer
+    order: 10
+    ask: never
+    title: Offer and negotiation
+    title_ru: Оффер и переговоры
+    summary: compensation, terms, paperwork
+    summary_ru: компенсация, условия, оформление
+    topics:
+      - { id: offer.compensation, title: Total compensation, title_ru: Компенсация целиком, priority: 1 }
+      - { id: offer.negotiation, title: Negotiation, title_ru: Переговоры, priority: 1 }
+      - { id: offer.paperwork, title: Paperwork and start date, title_ru: Оформление и дата выхода, priority: 3 }
+
+cross:
+  - id: language
+    title: Interview language
+    title_ru: Язык интервью
+    summary: minimal grammar, vocabulary from your own materials, ready answers, pronunciation
+    summary_ru: грамматика-минимум, словарь из своих материалов, готовые ответы, произношение
+    used_in: [recruiter, experience, tech, design, behavioral, final]
+    when: { answer: { english-train: [full, texts] } }
+    topics:
+      - { id: language.answers, title: My answers in English, title_ru: Мои ответы по-английски, summary: "self-introduction, why I'm leaving, salary range — out loud", summary_ru: "рассказ о себе, почему ухожу, вилка — вслух", priority: 1 }
+      - { id: language.stories, title: My stories in English, title_ru: Мои истории по-английски, summary: systems and STAR stories in my own words, summary_ru: системы и STAR своими словами, priority: 1 }
+      - id: language.vocab
+        title: Vocabulary from the materials
+        title_ru: Словарь из материалов
+        summary: "words from your stories, topics and the vacancy — minus what you already know"
+        summary_ru: "слова из своих рассказов, тем и вакансии — без того, что уже знаете"
+        priority: 1
+        when: { answer: { english-train: [full] } }
+      - { id: language.phrases, title: Interview phrases, title_ru: Связки для интервью, summary: "ask again, take a pause, clarify, push back", summary_ru: "переспросить, взять паузу, уточнить, возразить", priority: 1 }
+      - id: language.grammar
+        title: Minimal grammar
+        title_ru: Грамматика-минимум
+        summary: "tenses for talking about experience, conditionals for design"
+        summary_ru: "времена для рассказа об опыте, условные для проектирования"
+        priority: 2
+        when: { answer: { english-level: [a2, b1, b2] } }
+      - { id: language.pronunciation, title: Pronunciation of terms, title_ru: Произношение терминов, priority: 2 }
+
+  - id: stories
+    title: My systems and stories
+    title_ru: Мои системы и истории
+    summary: architecture diagrams, STAR stories, incidents
+    summary_ru: схемы архитектуры, истории по STAR, инциденты
+    used_in: [experience, design, behavioral]
+    personalized: true
+    topics:
+      - { id: stories.systems, title: Diagrams of my systems, title_ru: Схемы моих систем, priority: 1, expand: from-answer, expand_from: systems }
+      - { id: stories.star, title: STAR stories, title_ru: Истории по STAR, priority: 1 }
+
+  - id: answers
+    title: My answers
+    title_ru: Мои ответы
+    summary: self-introduction, why I'm leaving, salary range, start date
+    summary_ru: рассказ о себе, почему ухожу, вилка, дата выхода
+    used_in: [research, recruiter, final, offer]
+    personalized: true
+    topics:
+      - { id: answers.pitch, title: Self-introduction, title_ru: Рассказ о себе, priority: 1 }
+      - { id: answers.why-leave, title: Why I'm leaving, title_ru: Почему ухожу, priority: 1 }
+      - { id: answers.money, title: Salary range, title_ru: Вилка, priority: 1 }
+
+  - id: questions
+    title: Questions to ask
+    title_ru: Вопросы к ним
+    summary: the recruiter about the process, engineers about the stack, the manager about strategy
+    summary_ru: рекрутеру про процесс, инженерам про стек, руководителю про стратегию
+    used_in: [recruiter, tech, final]
+    topics:
+      - { id: questions.recruiter, title: For the recruiter, title_ru: Рекрутеру, priority: 2 }
+      - { id: questions.engineers, title: For engineers, title_ru: Инженерам, priority: 2 }
+      - { id: questions.manager, title: For the manager, title_ru: Руководителю, priority: 2 }
+
+  - id: trainer
+    title: Trainer
+    title_ru: Тренажёр
+    summary: spaced repetition over everything accumulated
+    summary_ru: повторение поверх всего накопленного
+    used_in: []
+    topics:
+      - { id: trainer.cards, title: Spaced repetition flashcards, title_ru: Карточки с интервальным повторением, priority: 2 }

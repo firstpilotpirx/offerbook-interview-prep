@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prepare-interview-skills/cv.schema.json",
+  "title": "CV",
+  "description": "prep/cv/cv.<lang>.yaml — CV source. tools/build_cv.py builds HTML/PDF/Markdown from it using templates/cv/cv.html. A vacancy-specific version is prep/companies/<id>/cv.<lang>.yaml in the same format.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["lang", "basics", "summary", "skills", "experience"],
+  "properties": {
+    "lang": { "enum": ["en", "ru"] },
+    "target": { "type": "string", "description": "What the version targets: general or a company id" },
+    "basics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "title", "email"],
+      "properties": {
+        "name": { "type": "string" },
+        "title": { "type": "string", "description": "Role as in the vacancy: Senior Backend Engineer" },
+        "location": { "type": "string" },
+        "work": { "type": "string", "description": "Work format: Remote · open to relocation" },
+        "email": { "type": "string", "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
+        "phone": { "type": "string" },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "url"],
+            "properties": { "label": { "type": "string" }, "url": { "type": "string", "pattern": "^https://" } }
+          }
+        }
+      }
+    },
+    "summary": { "type": "string", "minLength": 1, "description": "3–4 sentences: who, how many years, strengths, what you are looking for" },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["group", "items"],
+        "properties": {
+          "group": { "type": "string", "description": "Languages, Frameworks, Data, Infrastructure…" },
+          "items": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+        }
+      }
+    },
+    "experience": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Newest to oldest",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["company", "role", "start", "achievements"],
+        "properties": {
+          "company": { "type": "string" },
+          "about": { "type": "string", "description": "What the company does — one line, if it is not well known" },
+          "url": { "type": "string", "pattern": "^https://" },
+          "location": { "type": "string" },
+          "role": { "type": "string" },
+          "start": { "type": "string", "pattern": "^[12][0-9]{3}-(0[1-9]|1[0-2])$" },
+          "end": { "type": "string", "pattern": "^([12][0-9]{3}-(0[1-9]|1[0-2])|present)$" },
+          "product": { "type": "string", "description": "What you built and the scale: users, load, data, team" },
+          "achievements": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["text"],
+              "properties": {
+                "text": { "type": "string", "minLength": 1, "description": "Action verb + what you did + result" },
+                "story": { "type": "string", "description": "id of the story in the plan (stories.*) where this is told in detail" }
+              }
+            }
+          },
+          "stack": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "text"],
+        "properties": {
+          "name": { "type": "string" },
+          "url": { "type": "string", "pattern": "^https://" },
+          "text": { "type": "string" },
+          "stack": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["school"],
+        "properties": {
+          "school": { "type": "string" },
+          "degree": { "type": "string" },
+          "start": { "type": "string" },
+          "end": { "type": "string" }
+        }
+      }
+    },
+    "certifications": { "type": "array", "items": { "type": "string" } },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "level"],
+        "properties": { "name": { "type": "string" }, "level": { "type": "string" } }
+      }
+    }
+  }
+}

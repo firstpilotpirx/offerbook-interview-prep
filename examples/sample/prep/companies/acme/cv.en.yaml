@@ -1,0 +1,46 @@
+# Fictional example (examples/README.md): names, companies and numbers are invented placeholders.
+lang: en
+target: acme
+basics:
+  name: Alex Example
+  title: Senior Backend Engineer
+  location: Lisbon, Portugal
+  work: "Remote · open to relocation"
+  email: alex@example.com
+  links:
+    - { label: GitHub, url: "https://github.com/example" }
+    - { label: LinkedIn, url: "https://www.linkedin.com/in/example" }
+summary: >-
+  Backend engineer with <N> years in software, most recently in high-load data infrastructure.
+  Built real-time event pipelines and a tracking database behind a delivery app.
+  Strong in Java and Node.js, PostgreSQL and Kafka. Looking for a senior or tech lead role on a data-heavy product.
+skills:
+  - { group: Languages, items: [Java, Kotlin, TypeScript] }
+  - { group: Data, items: [PostgreSQL, Kafka, Redis, ClickHouse] }
+  - { group: Infrastructure, items: [Docker, Kubernetes, AWS, Grafana] }
+experience:
+  - company: Northwind
+    about: Parcel tracking platform
+    role: Senior Backend Engineer / Tech Lead
+    location: Remote
+    start: 2020-09
+    end: present
+    product: "Event pipeline and tracking database behind a delivery app with <N> monthly users"
+    achievements:
+      - text: "Built a tracking-event pipeline for <N> carriers that keeps up with the live feed at <N> events/s"
+        story: stories.pipeline
+      - text: "Cut p95 latency of the tracking API from <X> ms to <Y> ms by moving hot reads to Redis and denormalizing PostgreSQL tables"
+      - text: "Led a team of <N> engineers; introduced design reviews and on-call runbooks"
+    stack: [TypeScript, Node.js, PostgreSQL, Kafka, Redis, Kubernetes]
+  - company: Contoso Software
+    role: Software Engineer
+    start: 2012-04
+    end: 2020-08
+    achievements:
+      - text: "Responsible for integrations with warehouse scanners"
+      - text: "Worked on an internal billing tool"
+education:
+  - { school: Example University, degree: "BSc Computer Science", end: "2011" }
+languages:
+  - { name: Russian, level: Native }
+  - { name: English, level: B2 }

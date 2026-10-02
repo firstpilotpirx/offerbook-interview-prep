@@ -1,0 +1,7 @@
+# Topic id renames between profile versions. The person's progress (done,
+# excluded, expanded), "@@ id" material blocks and card used_in references are moved
+# to the new id on update (tools/migrate.py). Never delete entries.
+#
+# backend:
+#   - { since: 6, from: tech.old-id, to: tech.new-id }
+backend: []
