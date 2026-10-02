@@ -100,6 +100,15 @@ Next to it — "reviewed today" and the due count.
 - "Learn by importance" puts reviews first, then at most `goal − new today` new words. When the goal is met and nothing is due, the button turns into an explicit "Extra round" without the cap. Single decks are never capped.
 - The forecast for word decks uses the goal as the pace (the actual pace is shown next to it).
 
+## Pronunciation
+
+The browser's own Web Speech API (`speechSynthesis`): no keys, no subscriptions, no network for system voices; the voices come from the OS (macOS and iOS have good en-US, en-GB and Russian voices; Chrome adds online Google voices).
+
+- 🔊 next to every English word and example: on the trainer card, in the vocabulary check and lists, in the [[term]] popup. Inside a checkbox row the button does not toggle the checkbox.
+- Auto-play (on by default): an English question is spoken once when the card appears; an English answer only when it is revealed — a hidden answer is never spoken. `V` repeats what is visible.
+- Settings on the trainer tab, per device (`localStorage prep.tts`): auto-play, English voice (any `en-*` voice of the device, "default" picks Enhanced/Premium/Natural/Google voices first), speed 0.7–1.15×.
+- No speech API or no voice for the language — no buttons, nothing breaks.
+
 ## Word card
 
 - `en` in large type, `forms` below it (forms or transcription);
