@@ -7,6 +7,16 @@
 #   profile_topics      the profile changed — show the new topics and offer to add them (outline, mode update)
 # data_version — data format version after this version (tools/migrate.py).
 
+- version: "0.13.7"
+  date: 2026-10-02
+  data_version: 4
+  notes:
+    ru:
+      - "Тренажёр без лишних кликов: карточка сама произносит вопрос (русский или английский), после выбора — сигнал «верно» или «бззз», подсветка карточки, звучит правильный ответ, и через две секунды (полоска отсчёта на «Дальше») сама открывается следующая. Звуки и автопереход отключаются в настройках."
+    en:
+      - "A trainer round without extra clicks: the card speaks its question (Russian or English); after you pick — a right chime or a buzz, the card lights up, the correct answer is spoken and two seconds later (a countdown on \"Next\") the next card opens by itself. Sounds and auto-advance can be turned off."
+  actions: []
+
 - version: "0.13.6"
   date: 2026-10-02
   data_version: 4

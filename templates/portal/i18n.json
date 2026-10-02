@@ -263,7 +263,9 @@
     "ttsRate": "Скорость",
     "ttsNone": "На этом устройстве нет голоса для этого языка",
     "ttsAny": "по умолчанию",
-    "keysSpeak": "V — произнести"
+    "keysSpeak": "V — произнести",
+    "ttsSfx": "Звуки ✓ / ✗",
+    "ttsNext": "Автопереход"
   },
   "en": {
     "plan": "Plan",
@@ -529,6 +531,8 @@
     "ttsRate": "Speed",
     "ttsNone": "No voice for this language on this device",
     "ttsAny": "default",
-    "keysSpeak": "V — pronounce"
+    "keysSpeak": "V — pronounce",
+    "ttsSfx": "Sounds ✓ / ✗",
+    "ttsNext": "Auto-advance"
   }
 }
