@@ -105,8 +105,13 @@ Next to it — "reviewed today" and the due count.
 The browser's own Web Speech API (`speechSynthesis`): no keys, no subscriptions, no network for system voices; the voices come from the OS (macOS and iOS have good en-US, en-GB and Russian voices; Chrome adds online Google voices).
 
 - 🔊 next to every English word and example: on the trainer card, in the vocabulary check and lists, in the [[term]] popup. Inside a checkbox row the button does not toggle the checkbox.
-- Auto-play (on by default): an English question is spoken once when the card appears; an English answer only when it is revealed — a hidden answer is never spoken. `V` repeats what is visible.
-- Settings on the trainer tab, per device (`localStorage prep.tts`): auto-play, English voice (any `en-*` voice of the device, "default" picks Enhanced/Premium/Natural/Google voices first), speed 0.7–1.15×.
+- **A smooth round, no extra clicks** (all on by default):
+  1. the card opens → its question is spoken in its language (Russian voice for the translation side, English for the English side);
+  2. a "pick of 6" answer → a short rising chime and a green frame if right; a low buzz, a red frame and a shake if wrong; then the correct answer is spoken (a hidden answer is never spoken before that);
+  3. two seconds after the answer is spoken the next card opens by itself — a countdown bar runs on "Next", which skips the wait;
+  4. self-assessed cards: "Show answer" speaks the answer; "Got it" chimes, "Missed" buzzes.
+  `V` repeats the question, or the answer once it is shown. Sounds are synthesized with Web Audio — no files.
+- Settings on the trainer tab, per device (`localStorage prep.tts`): auto-play, sounds ✓/✗, auto-advance, English voice (any `en-*` voice of the device, "default" picks Enhanced/Premium/Natural/Google voices first), speed 0.7–1.15×.
 - No speech API or no voice for the language — no buttons, nothing breaks.
 
 ## Word card

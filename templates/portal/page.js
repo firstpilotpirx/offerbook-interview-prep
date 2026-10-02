@@ -786,7 +786,7 @@ function todayReps(){ var t0 = new Date(), n = 0; t0.setHours(0, 0, 0, 0); Objec
    good en-US/en-GB and Russian voices; Chrome adds online Google voices). Settings are per device
    (localStorage prep.tts): auto-play, English voice, speed. No voice for a language → no button. */
 var TTS = {ok: typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined', voices: []};
-var TTS_CFG = (function(c){ c = c && typeof c === 'object' ? c : {}; return {auto: c.auto !== false, voice: c.voice || '', rate: +c.rate > 0 ? +c.rate : 0.9}; })(lsGet('prep.tts', null));
+var TTS_CFG = (function(c){ c = c && typeof c === 'object' ? c : {}; return {auto: c.auto !== false, sfx: c.sfx !== false, next: c.next !== false, voice: c.voice || '', rate: +c.rate > 0 ? +c.rate : 0.9}; })(lsGet('prep.tts', null));
 function ttsLoad(){ try { TTS.voices = speechSynthesis.getVoices() || []; } catch (e){ TTS.voices = []; } }
 if (TTS.ok){ ttsLoad(); try { speechSynthesis.addEventListener('voiceschanged', ttsLoad); } catch (e){} }
 function ttsVoice(lang){
@@ -798,17 +798,41 @@ function ttsVoice(lang){
     if (/enhanced|premium|natural|neural|google/i.test(n)) s += 4; if (v.default) s += 2; if (lang === 'en' && /en-US/i.test(v.lang)) s += 1; return s; }
   return vs.slice().sort(function(a, b){ return score(b) - score(a); })[0];
 }
-function speak(text, lang){
-  if (!TTS.ok || !text) return false;
+/* speak(text, lang[, done]) — done() runs once when the speech ends, or after a fallback timeout
+   (some browsers drop onend), or right away when nothing can be spoken */
+function speak(text, lang, done){
+  var fired = false; function fin(){ if (!fired){ fired = true; if (done) done(); } }
+  if (!TTS.ok || !text){ fin(); return false; }
   if (!TTS.voices.length) ttsLoad();
   var v = ttsVoice(lang);
-  if (!v && TTS.voices.length) return false;
+  if (!v && TTS.voices.length){ fin(); return false; }
   try {
     speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(String(text).replace(/\s*\(.*?\)\s*/g, ' ').trim());
+    var s = String(text).replace(/\s*\(.*?\)\s*/g, ' ').trim();
+    var u = new SpeechSynthesisUtterance(s);
     u.lang = v ? v.lang : (lang === 'en' ? 'en-US' : lang); if (v) u.voice = v; u.rate = TTS_CFG.rate;
+    u.onend = fin; u.onerror = fin;
+    setTimeout(fin, (900 + 85 * s.length) / (TTS_CFG.rate || 1));
     speechSynthesis.speak(u); return true;
-  } catch (e){ return false; }
+  } catch (e){ fin(); return false; }
+}
+/* right / wrong cue, synthesized with Web Audio — no files: two soft rising notes, or a short low buzz */
+var SFX = null, AUTO_NEXT = 2000;   // pause before the next card, to read the answer
+function sfx(kind){
+  if (!TTS_CFG.sfx) return;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    SFX = SFX || new AC(); if (SFX.state === 'suspended') SFX.resume();
+    var t0 = SFX.currentTime + 0.01;
+    function tone(type, f1, f2, start, dur, vol){
+      var o = SFX.createOscillator(), g = SFX.createGain();
+      o.type = type; o.frequency.setValueAtTime(f1, start); if (f2) o.frequency.linearRampToValueAtTime(f2, start + dur);
+      g.gain.setValueAtTime(0.0001, start); g.gain.exponentialRampToValueAtTime(vol, start + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      o.connect(g); g.connect(SFX.destination); o.start(start); o.stop(start + dur + 0.02);
+    }
+    if (kind === 'ok'){ tone('sine', 880, 0, t0, 0.12, 0.12); tone('sine', 1320, 0, t0 + 0.1, 0.18, 0.12); }
+    else { tone('sawtooth', 150, 110, t0, 0.32, 0.09); tone('square', 75, 0, t0, 0.32, 0.04); }
+  } catch (e){}
 }
 function canSpeak(lang){ return TTS.ok && (!TTS.voices.length || !!ttsVoice(lang)); }
 /* a small 🔊 button; works inside <label> rows without toggling their checkbox */
@@ -821,9 +845,10 @@ function spk(text, lang){
 function ttsSave(){ lsSet('prep.tts', TTS_CFG); }
 function ttsControls(){
   var box = el('div', 'tts-opts');
-  if (!TTS.ok) return box;
   var au = el('label'); var cb = el('input'); cb.type = 'checkbox'; cb.checked = TTS_CFG.auto;
   cb.onchange = function(){ TTS_CFG.auto = cb.checked; ttsSave(); }; au.appendChild(cb); au.appendChild(document.createTextNode(' 🔊 ' + L().ttsAuto)); box.appendChild(au);
+  [['sfx', L().ttsSfx], ['next', L().ttsNext]].forEach(function(x){ var lb = el('label'), c2 = el('input'); c2.type = 'checkbox'; c2.checked = TTS_CFG[x[0]];
+    c2.onchange = function(){ TTS_CFG[x[0]] = c2.checked; ttsSave(); if (x[0] === 'sfx' && c2.checked) sfx('ok'); }; lb.appendChild(c2); lb.appendChild(document.createTextNode(' ' + x[1])); box.appendChild(lb); });
   var vl = el('label', null, L().ttsVoice + ' '), vs = el('select');
   function fill(){ vs.innerHTML = ''; var o0 = el('option', null, L().ttsAny); o0.value = ''; vs.appendChild(o0);
     TTS.voices.filter(function(v){ return /^en/i.test(v.lang || ''); }).forEach(function(v){ var o = el('option', null, v.name + ' · ' + v.lang); o.value = v.name; o.selected = v.name === TTS_CFG.voice; vs.appendChild(o); }); }
@@ -836,13 +861,23 @@ function ttsControls(){
 }
 /* what is English and visible on the current card: never speak an answer that is still hidden */
 var TRL = (P === 'en' ? 'en' : P);   // the translation field `ru` holds the main course language
-function cardSpeech(e, kind, shown){
+/* the card's question and its answer, each with its language; the answer is spoken only once revealed */
+function cardQ(e, kind){
   var it = e.it, f = e.f;
-  if (kind === 'verb') return shown ? [it.inf + ', ' + it.past.replace(/\s*\/\s*/g, ', ') + ', ' + it.pp, 'en'] : null;
-  if (kind === 'phrase' || kind === 'answer') return shown ? [it.en, 'en'] : null;
-  if (f === 'pick-ru' || f === 'say-ru' || !f) return [it.en, 'en'];     // the English word is the question
-  return shown ? [it.en, 'en'] : null;                                    // pick-en / say-en: English is the answer
+  if (kind === 'verb') return [it.inf, 'en'];
+  if (kind === 'answer') return [it.prompt_ru, TRL];
+  if (kind === 'phrase') return [it.ru, TRL];
+  if (f === 'pick-ru' || f === 'say-ru' || !f) return [it.en, 'en'];
+  return [it.ru, TRL];
 }
+function cardA(e, kind){
+  var it = e.it, f = e.f;
+  if (kind === 'verb') return [it.inf + ', ' + it.past.replace(/\s*\/\s*/g, ', ') + ', ' + it.pp, 'en'];
+  if (kind === 'phrase' || kind === 'answer') return [it.en, 'en'];
+  if (f === 'pick-ru' || f === 'say-ru' || !f) return [it.ru, TRL];
+  return [it.en, 'en'];
+}
+function cardSpeech(e, kind, shown){ return shown ? cardA(e, kind) : cardQ(e, kind); }
 
 /* ---------- daily goal: new words a day ----------
    A word counts on the day it was first shown (earliest side). Ring for today, seven small rings
@@ -1108,16 +1143,16 @@ function renderPlay(main){
   box.appendChild(bar([['d', p.idx / p.queue.length]]));
   var e = p.queue[p.idx], it = e.it, kind = p.deck.kind, pr = prompt(it, kind, e.f);
   var fresh = !!pr.pick;   // the "pick of 6" side
-  var c = el('div', 'tr-box');
+  var c = el('div', 'tr-box' + (fresh && p.picked ? (p.picked === it.id ? ' ok' : ' bad') : ''));
   c.appendChild(el('div', 'tr-lbl', pr.lbl));
   var qEl = el('div', 'tr-q' + (pr.small ? ' small' : ''), pr.q); c.appendChild(qEl);
   var qEn = (e.f === 'pick-ru' || e.f === 'say-ru' || (!e.f && kind === 'word'));
-  if (qEn && kind === 'word') qEl.appendChild(spk(it.en, 'en')); else if (!qEn && kind !== 'verb' && pr.q) qEl.appendChild(spk(pr.q, TRL));
+  var sq = cardQ(e, kind); qEl.appendChild(spk(sq[0], sq[1]));
   if (pr.hint) c.appendChild(el('div', 'tr-hint', pr.hint));
   if (p.shown){
     var ans = el('div', 'tr-ans');
     var aEl = el('div', pr.forms ? 'tr-forms' : 'tr-a' + (pr.small ? ' small' : ''), pr.a); ans.appendChild(aEl);
-    var said = cardSpeech(e, kind, true); if (said && !(qEn && kind === 'word')) aEl.appendChild(spk(said[0], said[1]));
+    var sa = cardA(e, kind); aEl.appendChild(spk(sa[0], sa[1]));
     if (it.note) ans.appendChild(el('div', 'tr-note', it.note));
     var ex = Array.isArray(it.ex) && it.ex.length ? it.ex[Math.floor(Math.random() * it.ex.length)] : null;
     if (ex){ var x = el('div', 'tr-ex'); x.appendChild(el('b', null, ex.en)); x.appendChild(spk(ex.en, 'en')); x.appendChild(document.createElement('br')); x.appendChild(document.createTextNode(ex.ru || '')); ans.appendChild(x); }
@@ -1134,7 +1169,21 @@ function renderPlay(main){
     p.opts.forEach(function(o){
       var b = el('button', 'tr-choice', pr.pick === 'en' ? o.en : o.ru); b.type = 'button';
       if (p.picked){ b.disabled = true; if (o.id === it.id) b.className = 'tr-choice ok'; else if (o.id === p.picked) b.className = 'tr-choice no'; }
-      b.onclick = function(){ p.picked = o.id; p.shown = true; render(); };
+      b.onclick = function(){
+        if (p.picked) return;
+        p.picked = o.id; p.shown = true; p.spoken = p.idx + ':1';   // the reveal is voiced here, not by auto-play
+        var ok = o.id === it.id, idx = p.idx, a = cardA(e, kind);
+        render(); sfx(ok ? 'ok' : 'bad');
+        // after the answer is spoken: AUTO_NEXT ms to read it (a countdown runs on "Next"), then the next card
+        function next(){
+          if (!TTS_CFG.next || play !== p || p.idx !== idx || !p.picked) return;
+          var nb = document.querySelector('.tr-play [data-key="next"]');
+          if (nb){ nb.style.setProperty('--auto', AUTO_NEXT + 'ms'); nb.classList.add('counting'); }
+          setTimeout(function(){ if (play === p && p.idx === idx && p.picked) grade(ok); }, AUTO_NEXT);
+        }
+        // right: say the word; wrong: buzz first, then the correct word
+        setTimeout(function(){ if (TTS_CFG.auto) speak(a[0], a[1], next); else next(); }, ok ? 150 : 380);
+      };
       ch.appendChild(b);
     });
     below.appendChild(ch);
@@ -1146,17 +1195,17 @@ function renderPlay(main){
     below.appendChild(el('p', 'tr-keys', L().keysShow));
   } else {
     var a3 = el('div', 'tr-acts');
-    var m = el('button', 'btn bad', L().missed); m.type = 'button'; m.dataset.key = 'bad'; m.onclick = function(){ grade(false); };
-    var g = el('button', 'btn good', L().got); g.type = 'button'; g.dataset.key = 'good'; g.onclick = function(){ grade(true); };
+    var m = el('button', 'btn bad', L().missed); m.type = 'button'; m.dataset.key = 'bad'; m.onclick = function(){ sfx('bad'); grade(false); };
+    var g = el('button', 'btn good', L().got); g.type = 'button'; g.dataset.key = 'good'; g.onclick = function(){ sfx('ok'); grade(true); };
     a3.appendChild(m); a3.appendChild(g); below.appendChild(a3);
     below.appendChild(el('p', 'tr-keys', L().keysGrade));
   }
   box.appendChild(below);
   if (TTS.ok) below.appendChild(el('p', 'tr-keys', L().keysSpeak));
   main.appendChild(box);
-  // auto-play once per card side: the question when it is English, the English answer when revealed
+  // auto-play once per card side: the question (whatever its language) when the card opens, the answer when revealed
   var key = p.idx + ':' + (p.shown ? 1 : 0);
-  if (TTS_CFG.auto && p.spoken !== key){ p.spoken = key; var s = cardSpeech(e, kind, p.shown); if (s && (qEn ? !p.shown : p.shown)) setTimeout(function(){ speak(s[0], s[1]); }, 120); }   // English question: once, when shown; English answer: once, on reveal
+  if (TTS_CFG.auto && p.spoken !== key){ p.spoken = key; var s = cardSpeech(e, kind, p.shown); if (s && s[0]) setTimeout(function(){ if (play === p && p.idx === +key.split(':')[0]) speak(s[0], s[1]); }, 120); }
 }
 document.addEventListener('keydown', function(ev){
   if (!play || ui.tab !== 'trainer' || /INPUT|SELECT|TEXTAREA/.test((ev.target || {}).tagName || '')) return;
