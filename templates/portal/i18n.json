@@ -256,7 +256,14 @@
     "vfStale": "Изменено после проверки",
     "vfNone": "Ещё не проверено по источникам",
     "vfMark": "Не удалось подтвердить по источникам — уточните перед интервью",
-    "vfSources": "источн."
+    "vfSources": "источн.",
+    "ttsPlay": "Произнести",
+    "ttsAuto": "Автоозвучка",
+    "ttsVoice": "Голос",
+    "ttsRate": "Скорость",
+    "ttsNone": "На этом устройстве нет голоса для этого языка",
+    "ttsAny": "по умолчанию",
+    "keysSpeak": "V — произнести"
   },
   "en": {
     "plan": "Plan",
@@ -515,6 +522,13 @@
     "vfStale": "Edited after the fact-check",
     "vfNone": "Not fact-checked yet",
     "vfMark": "Could not be confirmed by sources — check before the interview",
-    "vfSources": "sources"
+    "vfSources": "sources",
+    "ttsPlay": "Pronounce",
+    "ttsAuto": "Auto-play",
+    "ttsVoice": "Voice",
+    "ttsRate": "Speed",
+    "ttsNone": "No voice for this language on this device",
+    "ttsAny": "default",
+    "keysSpeak": "V — pronounce"
   }
 }

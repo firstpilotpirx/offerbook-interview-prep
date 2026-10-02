@@ -615,9 +615,9 @@ document.addEventListener('click', function(e){
   e.preventDefault();
   var w = WORD_BY_EN[(a.dataset.term || '').toLowerCase()]; if (!w) return;
   pop.innerHTML = '';
-  pop.appendChild(el('h4', null, w.en)); if (w.forms) pop.appendChild(el('div', 'hint', w.forms));
+  var h4 = el('h4', null, w.en); h4.appendChild(spk(w.en, 'en')); pop.appendChild(h4); if (w.forms) pop.appendChild(el('div', 'hint', w.forms));
   pop.appendChild(el('div', null, w.ru)); if (w.note) pop.appendChild(el('div', 'note', w.note));
-  (w.ex || []).slice(0, 2).forEach(function(x){ var d = el('div', 'ex', x.en); d.appendChild(el('span', null, x.ru)); pop.appendChild(d); });
+  (w.ex || []).slice(0, 2).forEach(function(x){ var d = el('div', 'ex', x.en); d.appendChild(spk(x.en, 'en')); d.appendChild(el('span', null, x.ru)); pop.appendChild(d); });
   var r = a.getBoundingClientRect(); pop.hidden = false;
   pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pop.offsetWidth - 8)) + 'px';
   pop.style.top = (r.bottom + 6 + pop.offsetHeight > innerHeight ? r.top - pop.offsetHeight - 6 : r.bottom + 6) + 'px';
@@ -656,7 +656,7 @@ function renderQuick(main, bands){
     var marks = {}, box = el('div', 'qbox');
     qSample(open.words).forEach(function(w){
       var r = el('label', 'vrow'); var c = el('input'); c.type = 'checkbox'; marks[w.id] = c;
-      r.appendChild(c); r.appendChild(el('span', 'en', w.en)); box.appendChild(r);   // no translation: this is a check, not a hint
+      r.appendChild(c); r.appendChild(el('span', 'en', w.en)); r.appendChild(spk(w.en, 'en')); box.appendChild(r);   // no translation: this is a check, not a hint
     });
     sec.appendChild(el('p', 'meta', L().qBand + ' ' + open.b + ' · ' + L()['band' + open.b] + ' — ' + L().qHint));
     sec.appendChild(box);
@@ -699,7 +699,7 @@ function renderVocab(main){
   var box = el('div', 'card'), marks = {};
   (batches[cur] || []).forEach(function(w){
     var r = el('label', 'vrow'); var c = el('input'); c.type = 'checkbox'; c.checked = !!known[w.id]; marks[w.id] = c;
-    r.appendChild(c); r.appendChild(el('span', 'en', w.en)); r.appendChild(el('span', 'ru', w.ru)); box.appendChild(r);
+    r.appendChild(c); r.appendChild(el('span', 'en', w.en)); r.appendChild(spk(w.en, 'en')); r.appendChild(el('span', 'ru', w.ru)); box.appendChild(r);
   });
   main.appendChild(box);
   var acts = el('div', 'acts'); var sv = el('button', 'btn primary', L().saveBatch); sv.type = 'button';
@@ -781,6 +781,69 @@ function trLegend(s){
   return lg;
 }
 function todayReps(){ var t0 = new Date(), n = 0; t0.setHours(0, 0, 0, 0); Object.keys(T).forEach(function(id){ var st = T[id]; if (st && st.l >= t0.getTime()) n += st.t || 0; }); return n; }
+/* ---------- pronunciation: Web Speech API (speechSynthesis) ----------
+   Built into the browser: no keys, no network for system voices. Voices come from the OS (macOS/iOS:
+   good en-US/en-GB and Russian voices; Chrome adds online Google voices). Settings are per device
+   (localStorage prep.tts): auto-play, English voice, speed. No voice for a language → no button. */
+var TTS = {ok: typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined', voices: []};
+var TTS_CFG = (function(c){ c = c && typeof c === 'object' ? c : {}; return {auto: c.auto !== false, voice: c.voice || '', rate: +c.rate > 0 ? +c.rate : 0.9}; })(lsGet('prep.tts', null));
+function ttsLoad(){ try { TTS.voices = speechSynthesis.getVoices() || []; } catch (e){ TTS.voices = []; } }
+if (TTS.ok){ ttsLoad(); try { speechSynthesis.addEventListener('voiceschanged', ttsLoad); } catch (e){} }
+function ttsVoice(lang){
+  var vs = TTS.voices.filter(function(v){ return (v.lang || '').toLowerCase().replace('_', '-').indexOf(lang) === 0; });
+  if (!vs.length) return null;
+  if (lang === 'en' && TTS_CFG.voice){ var ch = vs.filter(function(v){ return v.name === TTS_CFG.voice; })[0]; if (ch) return ch; }
+  // nicer voices first: Enhanced/Premium/Natural/Neural/Google, then the default, then en-US over others
+  function score(v){ var n = v.name || '', s = 0;
+    if (/enhanced|premium|natural|neural|google/i.test(n)) s += 4; if (v.default) s += 2; if (lang === 'en' && /en-US/i.test(v.lang)) s += 1; return s; }
+  return vs.slice().sort(function(a, b){ return score(b) - score(a); })[0];
+}
+function speak(text, lang){
+  if (!TTS.ok || !text) return false;
+  if (!TTS.voices.length) ttsLoad();
+  var v = ttsVoice(lang);
+  if (!v && TTS.voices.length) return false;
+  try {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(String(text).replace(/\s*\(.*?\)\s*/g, ' ').trim());
+    u.lang = v ? v.lang : (lang === 'en' ? 'en-US' : lang); if (v) u.voice = v; u.rate = TTS_CFG.rate;
+    speechSynthesis.speak(u); return true;
+  } catch (e){ return false; }
+}
+function canSpeak(lang){ return TTS.ok && (!TTS.voices.length || !!ttsVoice(lang)); }
+/* a small 🔊 button; works inside <label> rows without toggling their checkbox */
+function spk(text, lang){
+  if (!text || !canSpeak(lang)) return document.createTextNode('');
+  var b = el('button', 'spk', '🔊'); b.type = 'button'; b.title = L().ttsPlay; b.setAttribute('aria-label', L().ttsPlay + ': ' + text);
+  b.onclick = function(e){ e.preventDefault(); e.stopPropagation(); if (!speak(text, lang)) b.title = L().ttsNone; };
+  return b;
+}
+function ttsSave(){ lsSet('prep.tts', TTS_CFG); }
+function ttsControls(){
+  var box = el('div', 'tts-opts');
+  if (!TTS.ok) return box;
+  var au = el('label'); var cb = el('input'); cb.type = 'checkbox'; cb.checked = TTS_CFG.auto;
+  cb.onchange = function(){ TTS_CFG.auto = cb.checked; ttsSave(); }; au.appendChild(cb); au.appendChild(document.createTextNode(' 🔊 ' + L().ttsAuto)); box.appendChild(au);
+  var vl = el('label', null, L().ttsVoice + ' '), vs = el('select');
+  function fill(){ vs.innerHTML = ''; var o0 = el('option', null, L().ttsAny); o0.value = ''; vs.appendChild(o0);
+    TTS.voices.filter(function(v){ return /^en/i.test(v.lang || ''); }).forEach(function(v){ var o = el('option', null, v.name + ' · ' + v.lang); o.value = v.name; o.selected = v.name === TTS_CFG.voice; vs.appendChild(o); }); }
+  fill(); try { speechSynthesis.addEventListener('voiceschanged', fill); } catch (e){}
+  vs.onchange = function(){ TTS_CFG.voice = vs.value; ttsSave(); speak('interview', 'en'); }; vl.appendChild(vs); box.appendChild(vl);
+  var rl = el('label', null, L().ttsRate + ' '), rs = el('select');
+  [[0.7, '0.7×'], [0.85, '0.85×'], [0.9, '0.9×'], [1, '1×'], [1.15, '1.15×']].forEach(function(x){ var o = el('option', null, x[1]); o.value = x[0]; o.selected = Math.abs(x[0] - TTS_CFG.rate) < 0.01; rs.appendChild(o); });
+  rs.onchange = function(){ TTS_CFG.rate = +rs.value; ttsSave(); speak('interview', 'en'); }; rl.appendChild(rs); box.appendChild(rl);
+  return box;
+}
+/* what is English and visible on the current card: never speak an answer that is still hidden */
+var TRL = (P === 'en' ? 'en' : P);   // the translation field `ru` holds the main course language
+function cardSpeech(e, kind, shown){
+  var it = e.it, f = e.f;
+  if (kind === 'verb') return shown ? [it.inf + ', ' + it.past.replace(/\s*\/\s*/g, ', ') + ', ' + it.pp, 'en'] : null;
+  if (kind === 'phrase' || kind === 'answer') return shown ? [it.en, 'en'] : null;
+  if (f === 'pick-ru' || f === 'say-ru' || !f) return [it.en, 'en'];     // the English word is the question
+  return shown ? [it.en, 'en'] : null;                                    // pick-en / say-en: English is the answer
+}
+
 /* ---------- daily goal: new words a day ----------
    A word counts on the day it was first shown (earliest side). Ring for today, seven small rings
    for the week, a streak of days with the goal met, a slider to change the goal. */
@@ -945,6 +1008,7 @@ function renderTrainer(main){
   var lab = el('label', null, L().size + ' '), sel = el('select');
   [10, 20, 30, 50].forEach(function(v){ var o = el('option', null, String(v)); o.value = v; o.selected = v === ui.size; sel.appendChild(o); });
   sel.onchange = function(){ ui.size = +sel.value; lsSet('prep.size', ui.size); }; lab.appendChild(sel); opts.appendChild(lab);
+  opts.appendChild(ttsControls());
   // no direction choice: a word is asked from all four sides
   var rs = el('button', 'linkbtn', L().trReset); rs.type = 'button'; var armed = false;
   rs.onclick = function(){
@@ -1046,14 +1110,17 @@ function renderPlay(main){
   var fresh = !!pr.pick;   // the "pick of 6" side
   var c = el('div', 'tr-box');
   c.appendChild(el('div', 'tr-lbl', pr.lbl));
-  c.appendChild(el('div', 'tr-q' + (pr.small ? ' small' : ''), pr.q));
+  var qEl = el('div', 'tr-q' + (pr.small ? ' small' : ''), pr.q); c.appendChild(qEl);
+  var qEn = (e.f === 'pick-ru' || e.f === 'say-ru' || (!e.f && kind === 'word'));
+  if (qEn && kind === 'word') qEl.appendChild(spk(it.en, 'en')); else if (!qEn && kind !== 'verb' && pr.q) qEl.appendChild(spk(pr.q, TRL));
   if (pr.hint) c.appendChild(el('div', 'tr-hint', pr.hint));
   if (p.shown){
     var ans = el('div', 'tr-ans');
-    ans.appendChild(el('div', pr.forms ? 'tr-forms' : 'tr-a' + (pr.small ? ' small' : ''), pr.a));
+    var aEl = el('div', pr.forms ? 'tr-forms' : 'tr-a' + (pr.small ? ' small' : ''), pr.a); ans.appendChild(aEl);
+    var said = cardSpeech(e, kind, true); if (said && !(qEn && kind === 'word')) aEl.appendChild(spk(said[0], said[1]));
     if (it.note) ans.appendChild(el('div', 'tr-note', it.note));
     var ex = Array.isArray(it.ex) && it.ex.length ? it.ex[Math.floor(Math.random() * it.ex.length)] : null;
-    if (ex){ var x = el('div', 'tr-ex'); x.appendChild(el('b', null, ex.en)); x.appendChild(document.createElement('br')); x.appendChild(document.createTextNode(ex.ru || '')); ans.appendChild(x); }
+    if (ex){ var x = el('div', 'tr-ex'); x.appendChild(el('b', null, ex.en)); x.appendChild(spk(ex.en, 'en')); x.appendChild(document.createElement('br')); x.appendChild(document.createTextNode(ex.ru || '')); ans.appendChild(x); }
     else if (typeof it.ex === 'string'){ var x2 = el('div', 'tr-ex'); x2.appendChild(el('b', null, it.ex)); ans.appendChild(x2); }
     c.appendChild(ans);
   }
@@ -1085,13 +1152,19 @@ function renderPlay(main){
     below.appendChild(el('p', 'tr-keys', L().keysGrade));
   }
   box.appendChild(below);
+  if (TTS.ok) below.appendChild(el('p', 'tr-keys', L().keysSpeak));
   main.appendChild(box);
+  // auto-play once per card side: the question when it is English, the English answer when revealed
+  var key = p.idx + ':' + (p.shown ? 1 : 0);
+  if (TTS_CFG.auto && p.spoken !== key){ p.spoken = key; var s = cardSpeech(e, kind, p.shown); if (s && (qEn ? !p.shown : p.shown)) setTimeout(function(){ speak(s[0], s[1]); }, 120); }   // English question: once, when shown; English answer: once, on reveal
 }
 document.addEventListener('keydown', function(ev){
   if (!play || ui.tab !== 'trainer' || /INPUT|SELECT|TEXTAREA/.test((ev.target || {}).tagName || '')) return;
   var q = function(k){ return document.querySelector('.tr-play [data-key="' + k + '"]'); };
   if (ev.key === 'Escape'){ play = null; flush(); render(); return; }
   if (ev.key === ' ' || ev.key === 'Enter'){ var b = q('good') || q('next') || q('show'); if (b){ ev.preventDefault(); b.click(); } }
+  else if ((ev.key === 'v' || ev.key === 'V' || ev.key === 'м' || ev.key === 'М') && play.idx < play.queue.length){
+    var cur = play.queue[play.idx], s = cardSpeech(cur, play.deck.kind, play.shown); if (s){ ev.preventDefault(); speak(s[0], s[1]); } }
   else if (ev.key === '1' && q('bad')) q('bad').click();
   else if (ev.key === '2' && q('good')) q('good').click();
 });

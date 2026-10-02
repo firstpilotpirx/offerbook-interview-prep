@@ -7,6 +7,16 @@
 #   profile_topics      the profile changed — show the new topics and offer to add them (outline, mode update)
 # data_version — data format version after this version (tools/migrate.py).
 
+- version: "0.13.6"
+  date: 2026-10-02
+  data_version: 4
+  notes:
+    ru:
+      - "Озвучка слов встроенным голосом браузера — без ключей и подписок: 🔊 у слов и примеров в тренажёре, словаре и карточке слова, автоозвучка (скрытый ответ не произносится), клавиша V, выбор голоса и скорости."
+    en:
+      - "Word pronunciation with the browser's built-in voices — no keys or subscriptions: 🔊 next to words and examples in the trainer, vocabulary and word popup, auto-play (a hidden answer is never spoken), the V key, voice and speed settings."
+  actions: [rebuild_page]
+
 - version: "0.13.5"
   date: 2026-10-01
   data_version: 4
