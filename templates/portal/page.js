@@ -786,7 +786,7 @@ function todayReps(){ var t0 = new Date(), n = 0; t0.setHours(0, 0, 0, 0); Objec
    good en-US/en-GB and Russian voices; Chrome adds online Google voices). Settings are per device
    (localStorage prep.tts): auto-play, English voice, speed. No voice for a language → no button. */
 var TTS = {ok: typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined', voices: []};
-var TTS_CFG = (function(c){ c = c && typeof c === 'object' ? c : {}; return {auto: c.auto !== false, sfx: c.sfx !== false, next: c.next !== false, voice: c.voice || '', rate: +c.rate > 0 ? +c.rate : 0.9}; })(lsGet('prep.tts', null));
+var TTS_CFG = (function(c){ c = c && typeof c === 'object' ? c : {}; return {auto: c.auto !== false, sfx: c.sfx !== false, next: c.next !== false, pause: +c.pause >= 0 && +c.pause <= 5 && c.pause !== '' && c.pause != null ? +c.pause : 2, voice: c.voice || '', rate: +c.rate > 0 ? +c.rate : 0.9}; })(lsGet('prep.tts', null));
 function ttsLoad(){ try { TTS.voices = speechSynthesis.getVoices() || []; } catch (e){ TTS.voices = []; } }
 if (TTS.ok){ ttsLoad(); try { speechSynthesis.addEventListener('voiceschanged', ttsLoad); } catch (e){} }
 function ttsVoice(lang){
@@ -817,7 +817,8 @@ function speak(text, lang, done){
   } catch (e){ fin(); return false; }
 }
 /* right / wrong cue, synthesized with Web Audio — no files: two soft rising notes, or a short low buzz */
-var SFX = null, AUTO_NEXT = 2000;   // pause before the next card, to read the answer
+var SFX = null;
+function autoNext(){ return Math.round(TTS_CFG.pause * 1000); }   // pause before the next card (settings: 0–5 s, step 0.1)
 function sfx(kind){
   if (!TTS_CFG.sfx) return;
   try {
@@ -847,8 +848,14 @@ function ttsControls(){
   var box = el('div', 'tts-opts');
   var au = el('label'); var cb = el('input'); cb.type = 'checkbox'; cb.checked = TTS_CFG.auto;
   cb.onchange = function(){ TTS_CFG.auto = cb.checked; ttsSave(); }; au.appendChild(cb); au.appendChild(document.createTextNode(' 🔊 ' + L().ttsAuto)); box.appendChild(au);
+  // pause before auto-advance: 0–5 s, step 0.1 s
+  var pl = el('label', 'tts-pause'), pv = el('b', null, TTS_CFG.pause.toFixed(1) + ' ' + L().sec), pr_ = el('input');
+  pr_.type = 'range'; pr_.min = 0; pr_.max = 5; pr_.step = 0.1; pr_.value = TTS_CFG.pause; pr_.setAttribute('aria-label', L().ttsPause);
+  pr_.oninput = function(){ TTS_CFG.pause = +pr_.value; pv.textContent = TTS_CFG.pause.toFixed(1) + ' ' + L().sec; ttsSave(); };
+  pl.appendChild(document.createTextNode(L().ttsPause + ' ')); pl.appendChild(pr_); pl.appendChild(pv);
   [['sfx', L().ttsSfx], ['next', L().ttsNext]].forEach(function(x){ var lb = el('label'), c2 = el('input'); c2.type = 'checkbox'; c2.checked = TTS_CFG[x[0]];
-    c2.onchange = function(){ TTS_CFG[x[0]] = c2.checked; ttsSave(); if (x[0] === 'sfx' && c2.checked) sfx('ok'); }; lb.appendChild(c2); lb.appendChild(document.createTextNode(' ' + x[1])); box.appendChild(lb); });
+    c2.onchange = function(){ TTS_CFG[x[0]] = c2.checked; ttsSave(); if (x[0] === 'sfx' && c2.checked) sfx('ok'); if (x[0] === 'next') pl.hidden = !c2.checked; }; lb.appendChild(c2); lb.appendChild(document.createTextNode(' ' + x[1])); box.appendChild(lb); });
+  pl.hidden = !TTS_CFG.next; box.appendChild(pl);
   var vl = el('label', null, L().ttsVoice + ' '), vs = el('select');
   function fill(){ vs.innerHTML = ''; var o0 = el('option', null, L().ttsAny); o0.value = ''; vs.appendChild(o0);
     TTS.voices.filter(function(v){ return /^en/i.test(v.lang || ''); }).forEach(function(v){ var o = el('option', null, v.name + ' · ' + v.lang); o.value = v.name; o.selected = v.name === TTS_CFG.voice; vs.appendChild(o); }); }
@@ -1174,12 +1181,12 @@ function renderPlay(main){
         p.picked = o.id; p.shown = true; p.spoken = p.idx + ':1';   // the reveal is voiced here, not by auto-play
         var ok = o.id === it.id, idx = p.idx, a = cardA(e, kind);
         render(); sfx(ok ? 'ok' : 'bad');
-        // after the answer is spoken: AUTO_NEXT ms to read it (a countdown runs on "Next"), then the next card
+        // after the answer is spoken: the pause from the settings to read it (a countdown runs on "Next"), then the next card
         function next(){
           if (!TTS_CFG.next || play !== p || p.idx !== idx || !p.picked) return;
           var nb = document.querySelector('.tr-play [data-key="next"]');
-          if (nb){ nb.style.setProperty('--auto', AUTO_NEXT + 'ms'); nb.classList.add('counting'); }
-          setTimeout(function(){ if (play === p && p.idx === idx && p.picked) grade(ok); }, AUTO_NEXT);
+          if (nb){ nb.style.setProperty('--auto', autoNext() + 'ms'); nb.classList.add('counting'); }
+          setTimeout(function(){ if (play === p && p.idx === idx && p.picked) grade(ok); }, autoNext());
         }
         // right: say the word; wrong: buzz first, then the correct word
         setTimeout(function(){ if (TTS_CFG.auto) speak(a[0], a[1], next); else next(); }, ok ? 150 : 380);
@@ -1202,6 +1209,12 @@ function renderPlay(main){
   }
   box.appendChild(below);
   if (TTS.ok) below.appendChild(el('p', 'tr-keys', L().keysSpeak));
+  if (TTS_CFG.next && fresh){   // tune the auto-advance pause without leaving the round
+    var pl2 = el('label', 'tts-pause tr-keys'), pv2 = el('b', null, TTS_CFG.pause.toFixed(1) + ' ' + L().sec), r2 = el('input');
+    r2.type = 'range'; r2.min = 0; r2.max = 5; r2.step = 0.1; r2.value = TTS_CFG.pause; r2.setAttribute('aria-label', L().ttsPause);
+    r2.oninput = function(){ TTS_CFG.pause = +r2.value; pv2.textContent = TTS_CFG.pause.toFixed(1) + ' ' + L().sec; ttsSave(); };
+    pl2.appendChild(document.createTextNode(L().ttsPause + ' ')); pl2.appendChild(r2); pl2.appendChild(pv2); below.appendChild(pl2);
+  }
   main.appendChild(box);
   // auto-play once per card side: the question (whatever its language) when the card opens, the answer when revealed
   var key = p.idx + ':' + (p.shown ? 1 : 0);

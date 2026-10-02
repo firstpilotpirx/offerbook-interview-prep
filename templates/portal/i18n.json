@@ -265,7 +265,9 @@
     "ttsAny": "по умолчанию",
     "keysSpeak": "V — произнести",
     "ttsSfx": "Звуки ✓ / ✗",
-    "ttsNext": "Автопереход"
+    "ttsNext": "Автопереход",
+    "ttsPause": "Пауза перед следующей",
+    "sec": "с"
   },
   "en": {
     "plan": "Plan",
@@ -533,6 +535,8 @@
     "ttsAny": "default",
     "keysSpeak": "V — pronounce",
     "ttsSfx": "Sounds ✓ / ✗",
-    "ttsNext": "Auto-advance"
+    "ttsNext": "Auto-advance",
+    "ttsPause": "Pause before the next card",
+    "sec": "s"
   }
 }
