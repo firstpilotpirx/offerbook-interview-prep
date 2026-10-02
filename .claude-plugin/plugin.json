@@ -1,7 +1,7 @@
 {
   "name": "offerbook-interview-prep",
   "displayName": "Offerbook",
-  "version": "0.13.7",
+  "version": "0.13.8",
   "description": "Offerbook — interview prep from resume to job offer: a personal study plan from your resume and the vacancy, deep lessons from classic books, system design, an English trainer built on your own stories, resume and cover letters, interview tracker. Start with /offerbook-start.",
   "author": {
     "name": "firstpilotpirx",

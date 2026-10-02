@@ -7,6 +7,16 @@
 #   profile_topics      the profile changed — show the new topics and offer to add them (outline, mode update)
 # data_version — data format version after this version (tools/migrate.py).
 
+- version: "0.13.8"
+  date: 2026-10-02
+  data_version: 4
+  notes:
+    ru:
+      - "Small fixes and improvements"
+    en:
+      - "Small fixes and improvements"
+  actions: []
+
 - version: "0.13.7"
   date: 2026-10-02
   data_version: 4
