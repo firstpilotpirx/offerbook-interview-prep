@@ -108,10 +108,10 @@ The browser's own Web Speech API (`speechSynthesis`): no keys, no subscriptions,
 - **A smooth round, no extra clicks** (all on by default):
   1. the card opens → its question is spoken in its language (Russian voice for the translation side, English for the English side);
   2. a "pick of 6" answer → a short rising chime and a green frame if right; a low buzz, a red frame and a shake if wrong; then the correct answer is spoken (a hidden answer is never spoken before that);
-  3. after the answer is spoken, a pause (2 s by default, 0–5 s in steps of 0.1 s — a slider in the settings and under the card during a round) and the next card opens by itself — a countdown bar runs on "Next", which skips the wait;
+  3. after the answer has been spoken to the end (if a browser drops the end-of-speech event, the page waits while it is still speaking), a pause and the next card opens by itself. Two pauses: after a right answer (2 s by default) and after a mistake (3.5 s), each 0–5 s in steps of 0.1 s — sliders in the settings and under the card during a round. A countdown bar runs on "Next", which skips the wait;
   4. self-assessed cards: "Show answer" speaks the answer; "Got it" chimes, "Missed" buzzes.
   `V` repeats the question, or the answer once it is shown. Sounds are synthesized with Web Audio — no files.
-- Settings on the trainer tab, per device (`localStorage prep.tts`): auto-play, sounds ✓/✗, auto-advance and its pause, English voice (any `en-*` voice of the device, "default" picks Enhanced/Premium/Natural/Google voices first), speed 0.7–1.15×.
+- Settings on the trainer tab, per device (`localStorage prep.tts`): auto-play, sounds ✓/✗, auto-advance and its two pauses, English voice (any `en-*` voice of the device, "default" picks Enhanced/Premium/Natural/Google voices first), speed 0.7–1.15×.
 - No speech API or no voice for the language — no buttons, nothing breaks.
 
 ## Word card

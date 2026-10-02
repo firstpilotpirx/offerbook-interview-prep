@@ -294,6 +294,8 @@ a.term{color:var(--accent);text-decoration:underline dotted;text-underline-offse
 .tr-acts .btn[data-key="next"]{position:relative;overflow:hidden}
 .tr-acts .btn[data-key="next"].counting::after{content:'';position:absolute;left:0;bottom:0;height:4px;width:100%;background:currentColor;opacity:.45;transform-origin:left;animation:tr-count var(--auto,2000ms) linear forwards}
 @keyframes tr-count{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.tts-pauses{display:flex;flex-wrap:wrap;gap:6px 22px}
+.tts-pauses.tr-keys{justify-content:center}
 .tts-pause{display:flex;align-items:center;gap:8px}
 .tts-pause.tr-keys{justify-content:center}
 .tts-pause input{width:160px;accent-color:var(--accent)}

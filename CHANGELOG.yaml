@@ -7,6 +7,16 @@
 #   profile_topics      the profile changed — show the new topics and offer to add them (outline, mode update)
 # data_version — data format version after this version (tools/migrate.py).
 
+- version: "0.13.10"
+  date: 2026-10-02
+  data_version: 4
+  notes:
+    ru:
+      - "Две паузы перед автопереходом: после верного ответа (по умолчанию 2 с) и после ошибки (3,5 с), каждая от 0 до 5 с с шагом 0,1. Пауза отсчитывается только после того, как слово договорено, — оно никогда не обрывается."
+    en:
+      - "Two pauses before auto-advance: after a right answer (2 s by default) and after a mistake (3.5 s), each 0–5 s in steps of 0.1. The pause starts only once the word has been spoken to the end — it is never cut off."
+  actions: []
+
 - version: "0.13.9"
   date: 2026-10-02
   data_version: 4

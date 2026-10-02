@@ -786,7 +786,8 @@ function todayReps(){ var t0 = new Date(), n = 0; t0.setHours(0, 0, 0, 0); Objec
    good en-US/en-GB and Russian voices; Chrome adds online Google voices). Settings are per device
    (localStorage prep.tts): auto-play, English voice, speed. No voice for a language → no button. */
 var TTS = {ok: typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined', voices: []};
-var TTS_CFG = (function(c){ c = c && typeof c === 'object' ? c : {}; return {auto: c.auto !== false, sfx: c.sfx !== false, next: c.next !== false, pause: +c.pause >= 0 && +c.pause <= 5 && c.pause !== '' && c.pause != null ? +c.pause : 2, voice: c.voice || '', rate: +c.rate > 0 ? +c.rate : 0.9}; })(lsGet('prep.tts', null));
+function secs(v, d){ v = parseFloat(v); return v >= 0 && v <= 5 ? Math.round(v * 10) / 10 : d; }   // a pause in seconds, 0–5
+var TTS_CFG = (function(c){ c = c && typeof c === 'object' ? c : {}; return {auto: c.auto !== false, sfx: c.sfx !== false, next: c.next !== false, pauseOk: secs(c.pauseOk, secs(c.pause, 2)), pauseBad: secs(c.pauseBad, 3.5), voice: c.voice || '', rate: +c.rate > 0 ? +c.rate : 0.9}; })(lsGet('prep.tts', null));
 function ttsLoad(){ try { TTS.voices = speechSynthesis.getVoices() || []; } catch (e){ TTS.voices = []; } }
 if (TTS.ok){ ttsLoad(); try { speechSynthesis.addEventListener('voiceschanged', ttsLoad); } catch (e){} }
 function ttsVoice(lang){
@@ -812,13 +813,23 @@ function speak(text, lang, done){
     var u = new SpeechSynthesisUtterance(s);
     u.lang = v ? v.lang : (lang === 'en' ? 'en-US' : lang); if (v) u.voice = v; u.rate = TTS_CFG.rate;
     u.onend = fin; u.onerror = fin;
-    setTimeout(fin, (900 + 85 * s.length) / (TTS_CFG.rate || 1));
+    // fallback when a browser drops onend: after the estimated length, wait while it is still speaking
+    var t0 = Date.now();
+    setTimeout(function wait(){ var busy = false; try { busy = speechSynthesis.speaking; } catch (e){}
+      if (busy && Date.now() - t0 < 20000) setTimeout(wait, 200); else fin(); }, (900 + 85 * s.length) / (TTS_CFG.rate || 1));
     speechSynthesis.speak(u); return true;
   } catch (e){ fin(); return false; }
 }
 /* right / wrong cue, synthesized with Web Audio — no files: two soft rising notes, or a short low buzz */
 var SFX = null;
-function autoNext(){ return Math.round(TTS_CFG.pause * 1000); }   // pause before the next card (settings: 0–5 s, step 0.1)
+function autoNext(ok){ return Math.round((ok ? TTS_CFG.pauseOk : TTS_CFG.pauseBad) * 1000); }   // pause before the next card, counted after the speech ends
+/* a 0–5 s slider (step 0.1) for one of the two pauses; saved per device right away */
+function pauseSlider(key, label, cls){
+  var lb = el('label', 'tts-pause' + (cls ? ' ' + cls : '')), v = el('b', null, TTS_CFG[key].toFixed(1) + ' ' + L().sec), r = el('input');
+  r.type = 'range'; r.min = 0; r.max = 5; r.step = 0.1; r.value = TTS_CFG[key]; r.setAttribute('aria-label', label);
+  r.oninput = function(){ TTS_CFG[key] = +r.value; v.textContent = TTS_CFG[key].toFixed(1) + ' ' + L().sec; ttsSave(); };
+  lb.appendChild(document.createTextNode(label + ' ')); lb.appendChild(r); lb.appendChild(v); return lb;
+}
 function sfx(kind){
   if (!TTS_CFG.sfx) return;
   try {
@@ -848,11 +859,8 @@ function ttsControls(){
   var box = el('div', 'tts-opts');
   var au = el('label'); var cb = el('input'); cb.type = 'checkbox'; cb.checked = TTS_CFG.auto;
   cb.onchange = function(){ TTS_CFG.auto = cb.checked; ttsSave(); }; au.appendChild(cb); au.appendChild(document.createTextNode(' 🔊 ' + L().ttsAuto)); box.appendChild(au);
-  // pause before auto-advance: 0–5 s, step 0.1 s
-  var pl = el('label', 'tts-pause'), pv = el('b', null, TTS_CFG.pause.toFixed(1) + ' ' + L().sec), pr_ = el('input');
-  pr_.type = 'range'; pr_.min = 0; pr_.max = 5; pr_.step = 0.1; pr_.value = TTS_CFG.pause; pr_.setAttribute('aria-label', L().ttsPause);
-  pr_.oninput = function(){ TTS_CFG.pause = +pr_.value; pv.textContent = TTS_CFG.pause.toFixed(1) + ' ' + L().sec; ttsSave(); };
-  pl.appendChild(document.createTextNode(L().ttsPause + ' ')); pl.appendChild(pr_); pl.appendChild(pv);
+  // pauses before auto-advance, after a right answer and after a mistake: 0–5 s, step 0.1 s
+  var pl = el('div', 'tts-pauses'); pl.appendChild(pauseSlider('pauseOk', L().ttsPauseOk)); pl.appendChild(pauseSlider('pauseBad', L().ttsPauseBad));
   [['sfx', L().ttsSfx], ['next', L().ttsNext]].forEach(function(x){ var lb = el('label'), c2 = el('input'); c2.type = 'checkbox'; c2.checked = TTS_CFG[x[0]];
     c2.onchange = function(){ TTS_CFG[x[0]] = c2.checked; ttsSave(); if (x[0] === 'sfx' && c2.checked) sfx('ok'); if (x[0] === 'next') pl.hidden = !c2.checked; }; lb.appendChild(c2); lb.appendChild(document.createTextNode(' ' + x[1])); box.appendChild(lb); });
   pl.hidden = !TTS_CFG.next; box.appendChild(pl);
@@ -1185,8 +1193,8 @@ function renderPlay(main){
         function next(){
           if (!TTS_CFG.next || play !== p || p.idx !== idx || !p.picked) return;
           var nb = document.querySelector('.tr-play [data-key="next"]');
-          if (nb){ nb.style.setProperty('--auto', autoNext() + 'ms'); nb.classList.add('counting'); }
-          setTimeout(function(){ if (play === p && p.idx === idx && p.picked) grade(ok); }, autoNext());
+          if (nb){ nb.style.setProperty('--auto', autoNext(ok) + 'ms'); nb.classList.add('counting'); }
+          setTimeout(function(){ if (play === p && p.idx === idx && p.picked) grade(ok); }, autoNext(ok));
         }
         // right: say the word; wrong: buzz first, then the correct word
         setTimeout(function(){ if (TTS_CFG.auto) speak(a[0], a[1], next); else next(); }, ok ? 150 : 380);
@@ -1209,11 +1217,11 @@ function renderPlay(main){
   }
   box.appendChild(below);
   if (TTS.ok) below.appendChild(el('p', 'tr-keys', L().keysSpeak));
-  if (TTS_CFG.next && fresh){   // tune the auto-advance pause without leaving the round
-    var pl2 = el('label', 'tts-pause tr-keys'), pv2 = el('b', null, TTS_CFG.pause.toFixed(1) + ' ' + L().sec), r2 = el('input');
-    r2.type = 'range'; r2.min = 0; r2.max = 5; r2.step = 0.1; r2.value = TTS_CFG.pause; r2.setAttribute('aria-label', L().ttsPause);
-    r2.oninput = function(){ TTS_CFG.pause = +r2.value; pv2.textContent = TTS_CFG.pause.toFixed(1) + ' ' + L().sec; ttsSave(); };
-    pl2.appendChild(document.createTextNode(L().ttsPause + ' ')); pl2.appendChild(r2); pl2.appendChild(pv2); below.appendChild(pl2);
+  if (TTS_CFG.next && fresh){   // tune the pauses without leaving the round: after this card's outcome, or both before picking
+    var pp = el('div', 'tts-pauses tr-keys');
+    if (!p.picked || p.picked === it.id) pp.appendChild(pauseSlider('pauseOk', L().ttsPauseOk));
+    if (!p.picked || p.picked !== it.id) pp.appendChild(pauseSlider('pauseBad', L().ttsPauseBad));
+    below.appendChild(pp);
   }
   main.appendChild(box);
   // auto-play once per card side: the question (whatever its language) when the card opens, the answer when revealed
