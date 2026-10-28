@@ -10,12 +10,16 @@
     run company.py --dir . log acme hr-call "Range up to 95k" with=Anna 'facts={"range":"€80–95k"}'
     run company.py --dir . vacancy acme vacancy.md          # put the job posting text into the company folder
     run company.py --dir . show acme
+    run company.py --dir . close acme rejected --stage tech-1 --text "Not moving forward after the tech interview"
 
 Rules:
 - company id is a slug of the name; stage id is <stage>-<n> (tech-1, tech-2); `stage acme tech …`
   without a number: update the last unfinished tech stage or create the next one;
 - updated is set automatically; date defaults to today;
 - the record is validated against schemas/company.schema.json; on error the file is not changed;
+- close: a final decision — company status, the given stage failed (rejected) or passed (offer/accepted),
+  every other open stage cancelled, a `decision` entry in the log; then offer to hide the company's groups
+  (outline.py hide --company <id>);
 - after writing, the page is rebuilt (--no-build to skip).
 """
 from __future__ import annotations
@@ -106,6 +110,9 @@ def main() -> int:
     x = sub.add_parser("log"); x.add_argument("cid"); x.add_argument("kind"); x.add_argument("text"); x.add_argument("pairs", nargs="*")
     x = sub.add_parser("vacancy"); x.add_argument("cid"); x.add_argument("file")
     x = sub.add_parser("show"); x.add_argument("cid")
+    x = sub.add_parser("close"); x.add_argument("cid"); x.add_argument("status", choices=["rejected", "withdrawn", "offer", "accepted", "paused"])
+    x.add_argument("--stage", help="the stage the decision came after (rejected → failed, offer/accepted → passed)")
+    x.add_argument("--text", help="what they wrote, one line")
     sub.add_parser("list")
     a = ap.parse_args()
     root = Path(a.dir).expanduser()
@@ -154,6 +161,26 @@ def main() -> int:
         set_dotted(e, parse_pairs(a.pairs))
         c.setdefault("log", []).append(e)
         c["log"].sort(key=lambda r: str(r.get("date")))
+    elif a.cmd == "close":
+        if a.stage:
+            st = find_stage(c, a.stage, create=False) if re.fullmatch(r"[a-z][a-z0-9-]*-\d+", a.stage) else \
+                next((s for s in reversed(c.get("stages", [])) if s["stage"] == a.stage), None)
+            if not st:
+                raise Fail(f"! no stage {a.stage}")
+            if a.status == "rejected":
+                st["status"] = "failed"
+            elif a.status in ("offer", "accepted"):
+                st["status"] = "passed"
+        if a.status != "paused":
+            for st in c.get("stages", []):
+                if st.get("status") in OPEN:
+                    st["status"] = "cancelled"
+        c["status"] = a.status
+        c.setdefault("log", []).append({"date": today(), "kind": "offer" if a.status == "offer" else "decision",
+                                        "text": a.text or a.status})
+        c["log"].sort(key=lambda r: str(r.get("date")))
+        if a.status in ("rejected", "withdrawn"):
+            print(f"hint: hide this company's own groups — outline.py hide --company {a.cid}")
     elif a.cmd == "vacancy":
         dst = path(root, a.cid).parent / "vacancy.md"
         shutil.copyfile(a.file, dst)

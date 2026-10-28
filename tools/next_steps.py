@@ -148,6 +148,21 @@ def main() -> int:
                 add(f"prepare:{c.get('id')}:{st['id']}", f"Prepare for {name}"[:40],
                     f"«{stage}» {plural_days(days)}{' at ' + st['time'] if st.get('time') else ''}: weak topics, past questions, questions for them",
                     "track", 94 - days * 2, company=c.get("id"), stage=st["id"], mode="prepare")
+                if answers.get("interview-language") in ("english", "other") or answers.get("english-train") in ("full", "texts"):
+                    add(f"drill:{c.get('id')}:{st['id']}", "Speaking drill"[:40],
+                        f"Likely questions for «{stage}»: I ask, you answer out loud in English, I correct — «Left: N»",
+                        "english", 86 - days * 2, company=c.get("id"), stage=st["id"], mode="drill")
+    # a closed company whose own groups are still on the page: offer to hide them (marks are kept)
+    tagged = {}
+    for n in walk((outline or {}).get("nodes") or []):
+        if not n.get("hidden") and len(n.get("companies") or []) == 1:
+            tagged.setdefault(n["companies"][0], 0)
+            tagged[n["companies"][0]] += 1
+    for c in companies:
+        if c.get("status") in ("rejected", "withdrawn") and tagged.get(c.get("id")):
+            add(f"hide:{c.get('id')}", f"Hide {c.get('name')} topics"[:40],
+                "The process is closed — I'll take its own groups off the plan; marks stay, you can bring them back",
+                "outline", 62, company=c.get("id"), mode="hide")
     if inbox:
         add("inbox", f"Import entries from the page", f"{len(inbox)} entries from the «Interviews» form waiting to be moved into cards", "track", 97, mode="sync")
 

@@ -102,8 +102,19 @@ A one-line summary — then back to the hub (the "What do we do next?" menu).
 
 ## Editing the plan (`mode: update`)
 
-The first screen — "What to change?" buttons: "Add topics", "Remove topics", "New job posting", "Raise priority".
+The first screen — "What to change?" buttons: "Add topics", "Remove topics", "New job posting", "Raise priority", "Hide sections".
 
-- New topics get new ids; **old ids are never changed or deleted** — anything removed from the plan is marked `skip`.
+All edits go through `run outline.py` (add / set / tag / hide / unhide / check): it refuses a duplicate id, a priority other than 1/2/3 and an unknown company, and rebuilds the page.
+
+- New topics get new ids; **old ids are never changed or deleted** — anything removed from the plan is marked `skip` or hidden.
+- **Priority is the number 1, 2 or 3.** Never a word ("high"): such a topic falls out of the filters and counters.
+- **Company-specific topics are tagged:** `outline.py tag <id> <company id>` on the group (children inherit). Material made for one company — its official format, its environment checklist, its likely tasks — is tagged; general knowledge is not. The page's company chip shows the company's topics plus all general ones, so never tag a general topic "to make it visible".
+- **Hide, do not delete.** When the person says a whole area is no longer needed (another language stack, a closed company, a technology they will not be asked about), `outline.py hide <id> …` — or `hide --company <id>` after a rejection. Marks and lessons stay; `unhide` brings them back. Say in one line what was hidden and that it can be returned.
+- **Groups stay small**: up to ~25 children; a bigger list is split into sub-groups (by type, tier or day). Large material is split into child topics (references/material-format.md, "One topic — one checkbox").
+- **A list of practice items** (problems, tasks) gets an intro topic and tiers: must — the minimum that covers every common type once; optional — repeats a type or is rarer. The intro says why each tier is what it is.
 - "New job posting" → posting text, comparison with the resume, new topics with `origin: vacancy`, priorities recalculated.
 - After the edit: `run validate_content.py --dir <folder>`; then the hub will offer to update the materials and the page by itself.
+
+## Hide a closed company's topics (`mode: hide`)
+
+The hub passes `args.company`. Show which groups are tagged only with this company (`run outline.py hidden` afterwards confirms), then `run outline.py --dir <folder> hide --company <id>`. One line: "Hidden: <groups>. Marks are kept — say the word and I'll bring them back."

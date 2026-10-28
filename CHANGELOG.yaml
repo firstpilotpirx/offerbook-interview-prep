@@ -7,6 +7,22 @@
 #   profile_topics      the profile changed — show the new topics and offer to add them (outline, mode update)
 # data_version — data format version after this version (tools/migrate.py).
 
+- version: "0.14.0"
+  date: 2026-10-28
+  data_version: 4
+  notes:
+    ru:
+      - "Фильтр плана по этапу и компании: чипы над деревом. Общие темы видны при любом фильтре компании — новая тема больше не пропадает из вида."
+      - "Ненужные группы можно скрыть, не удаляя: отметки и уроки сохраняются, вернуть — одной просьбой. После отказа компании предлагаю скрыть её темы."
+      - "Подготовка по этапам: скрининг, hiring manager (рассказ о системе в 8 шагов), задачи на алгоритмы (типы задач, главное и по желанию), этап с AI-ассистентом (формат, режим интервью для своего агента, чеклист окружения), справка по теме практической задачи."
+      - "Перед этапом — тренировка вслух по-английски: вопрос, ваш ответ, исправления, «Осталось N». Слоты из письма переводятся в ваш часовой пояс, короткие ответы рекрутеру — готовыми черновиками."
+    en:
+      - "Filter the plan by stage and company: chips above the tree. General topics stay visible under any company filter — a new topic never disappears from view."
+      - "Hide groups you no longer need without deleting them: marks and lessons are kept, one request brings them back. After a rejection I offer to hide that company's topics."
+      - "Stage-by-stage prep: screening, hiring manager (a system told in 8 steps), coding problems (problem types, must and optional), the AI-assisted round (format, an interview mode for your own agent, environment checklist), a reference for the practical task's topic."
+      - "Before a stage — a speaking drill in English: a question, your answer, corrections, \"Left: N\". Slots from an email are converted to your time zone; short replies to the recruiter come as ready drafts."
+  actions: [rebuild_page, profile_topics]
+
 - version: "0.13.10"
   date: 2026-10-02
   data_version: 4

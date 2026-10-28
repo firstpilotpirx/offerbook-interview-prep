@@ -28,6 +28,8 @@ UI labels below are shown in English; the page ships both ru and en strings (`te
  TAGS  [must] … [important] … [optional] … [vacancy] … [my experience] …
 
  [Search…] [All|Not done|Done|Excluded] [Any|Must|Important|Optional] [From vacancy]
+ Company  (Acme) (Globex)                                    ← chips, only companies some topic belongs to
+ Stage    (Screening) (Technical interview) (My experience and language)   × clear
                                                                           ● Saved
  ──────────────────────────────────────────────────────────────────────────────────
  CONTENTS (sticky)        │  04 TECHNICAL INTERVIEW                         12 / 48
@@ -105,6 +107,9 @@ A topic's track: the node's own `track:` if set, otherwise the track whose `sect
 - Skipped (`skip`) topics count in neither the numerator nor the denominator.
 - Tags: priority (must / important / optional — «главное / важно / по желанию»), origin (vacancy / my experience / profile / after interview), "failed N times" from the `track` module.
 - Filters: priority, origin, not done; search over headings and text in the current language.
+- **Stage and company chips** (`D.tags`, built by `build_page.py`): stage = the topic's top-level section, every cross-cutting section shares one chip "My experience and language"; company = `companies: [<id>]` on a node (`outline.py tag`), inherited by its subtree. Chips in one row are OR, the rows are AND. **A company chip also keeps every general topic** (one without a company): a topic added later is never lost behind a filter — this is exactly how a whole new section once disappeared. Chips are remembered in `localStorage['prep.tags']`; they narrow the tree but do not open cards (only search and the segmented filters open every card with a match).
+- **Hidden groups** (`hidden: true`, `outline.py hide`): the node and its subtree are not shipped with the page, their lessons stay in `content/`, marks stay in storage. The header lists them ("Hidden from the plan: Java (15), …"); `outline.py unhide` brings them back with their marks.
+- A "what they'll ask" line that is a bare URL (a LeetCode problem, a doc page) is shown as a short clickable link that opens in a new tab and does not toggle the row.
 - At the top: overall progress, a completion forecast at the current pace, "marked today".
 - Leaf: heading, a single "what they'll ask" line, expandable material, "done", "exclude".
 
@@ -159,5 +164,6 @@ Check after any template change: Playwright with a mock `window.claude.use('db')
 
 1. `run validate_profiles.py` and `run validate_content.py --dir .` with no errors.
 2. Back up `prep/state` and `trainer/state`; after publishing — check that the number of marks has not decreased.
-3. If edited from another session — read the live version and merge.
+3. If edited from another session — read the live version and merge. Publish **to the same artifact URL every time** (`page_url` in `prep/session.yaml`): a publish without the URL creates a second page with an empty database, and the person opens it and sees no progress. If a second copy was created by mistake, delete it only after the person agrees.
 4. Check at narrow width (phone) and in the dark theme.
+5. The app's side panel can keep an old copy of the page: if the person does not see a change, tell them to close the panel and open the artifact again (or open the link in their browser) — do not rebuild again.

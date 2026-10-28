@@ -24,6 +24,15 @@ step "update on a copy"; cp -r "$DIR" "$OUT/up" && rm -f "$OUT/up/prep/session.y
   && "$PY" tools/migrate.py --dir "$OUT/up" > "$OUT/m2.txt" && head -1 "$OUT/m2.txt" \
   && "$PY" tools/backup.py --dir "$OUT/up" list > "$OUT/b.txt" && head -1 "$OUT/b.txt" \
   && "$PY" tools/whats_new.py --dir "$DIR" --from 0.8.0 > "$OUT/w.txt" && head -2 "$OUT/w.txt"
+step "plan checks";      "$PY" tools/outline.py --dir "$DIR" check
+step "plan edits on a copy"; cp -r "$DIR" "$OUT/ol" \
+  && "$PY" tools/outline.py --dir "$OUT/ol" --no-build add tech.services.ratelimit "Rate limiting" --parent tech.services priority=1 >/dev/null \
+  && "$PY" tools/outline.py --dir "$OUT/ol" --no-build tag tech.services.ratelimit "$(ls "$OUT/ol/prep/companies" | head -1)" >/dev/null \
+  && "$PY" tools/outline.py --dir "$OUT/ol" --no-build hide tech.frameworks >/dev/null \
+  && ! "$PY" tools/outline.py --dir "$OUT/ol" --no-build set tech.services priority=high 2>/dev/null \
+  && "$PY" tools/build_page.py --dir "$OUT/ol" --out "$OUT/ol.html" >/dev/null \
+  && "$PY" -c "import re,json,sys;s=open('$OUT/ol.html').read();d=json.loads(re.findall(r'<script id=\"prep-data\" type=\"application/json\">(.*?)</script>',s,re.S)[-1].replace('<'+chr(92)+'/','</'));t=d['tags'];assert d['hidden'][0]['id']=='tech.frameworks';assert any(x['group']=='co' for x in t['defs']);print('tags',len(t['map']),'· hidden',len(d['hidden']))"
+step "slots";            "$PY" tools/slots.py --from Europe/London --to Europe/Berlin "2026-11-12 16:30" "2026-11-16 15:00"
 step "hub menu";         "$PY" tools/next_steps.py --dir "$DIR"
 step "page on an empty folder"; mkdir -p "$OUT/empty" && "$PY" tools/build_page.py --dir "$OUT/empty" --out "$OUT/empty.html"
 step "page";           "$PY" tools/build_page.py --dir "$DIR" --out "$OUT/index.html"

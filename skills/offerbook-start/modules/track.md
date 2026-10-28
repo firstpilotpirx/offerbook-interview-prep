@@ -11,6 +11,7 @@ Modes from the hub menu (`args.mode`):
 | `prepare` | the "For stage X at Y" screen for `args.company`, `args.stage` (see below) |
 | `debrief` | debrief of the completed stage `args.stage` |
 | `sync` | carry over form entries from the page |
+| `close` | a final decision: rejection, offer, withdrawal |
 
 For `add`, the first screen is "What happened?" buttons: "HR call", "Stage scheduled", "Stage passed", "Offer or rejection". Then — buttons per field; free text only for the retelling.
 
@@ -23,7 +24,7 @@ The source of truth is the files `prep/companies/<id>/company.yaml` (schema `sch
 | "Had an HR call, range 80–95, three stages" | `log` with `kind: hr-call` + `facts`, `stages` with status `expected` |
 | "Tech interview Thursday at 15:00" | stage `scheduled` with `date`, `time` |
 | "Passed the tech one, they asked about indexes, I floundered" | stage `passed`, `questions` with `topic` and `went` |
-| "Rejected, said too little Kafka experience" | stage `failed`, `feedback`, company status `rejected` |
+| "Rejected, said too little Kafka experience" | `company.py close <id> rejected --stage <ref> --text "…"`, `feedback` on the stage |
 | "Got an offer" | `log` with `kind: offer` + terms in `facts`, status `offer` |
 | "Mark transactions as done" | `state.done` in `prep/outline.yaml` |
 
@@ -40,6 +41,32 @@ run company.py --dir <folder> question acme-payments tech-1 "How does Kafka keep
 run company.py --dir <folder> log acme-payments hr-call "Three stages, decision in a week" with=Anna 'facts={"range":"€80–95k"}'
 run company.py --dir <folder> set acme-payments status=offer
 ```
+
+## Invitations and slots
+
+An invitation email usually has slots in the company's time zone and often a link to a format page.
+
+1. **Convert every slot with `run slots.py`** — `--from` the zone named in the email (UK time → `Europe/London`), `--to` the person's zone. Never by hand: at the end of March and October the two countries change clocks on different dates. Show the slots as a short list in the person's time.
+2. **Recommend one slot** in one line, with the reason: earlier in the day is fresher; leave at least two working days to prepare if the format is new (a new language or tool in the checklist); avoid a slot right before the clocks change if the person is unsure.
+3. **Read the linked format page** fully (references/stage-playbooks.md, "Read the official format"). Answer the person's questions about it with exact quotes.
+4. Record: `company.py stage <id> <stage> status=scheduled date=… time=<person's local time> format=…`, the format summary as the stage `title`, and a `log` entry with the details. Then build the stage's groups by the playbook and tag them with the company.
+
+## Letters
+
+Short replies the person sends themselves — draft them in the reply, in the language of the thread, and translate when asked. Plain words, no flattery, no exclamation marks the person did not use, 2–4 sentences. If the person asked for no contractions in English, none.
+
+- **Choosing a slot**: thank them, name the slot exactly as they wrote it ("26th October at 3pm UK time"), one line that you have read the format and will have the environment ready.
+- **After accepting a calendar invite**: usually no reply is needed; if the person wants one — one line.
+- **A rejection, keeping the door open**: thank them for letting you know, one neutral line about the role ("It was interesting to learn about the role"), "feel free to reach out if a suitable role opens in the future". No "I loved every minute", no pleading.
+- **Feedback request**: only if the person wants it — one polite question about the specific stage.
+- **Withdrawing**: thank them, one line why (another offer, timing), keep it open.
+
+## After a decision (`mode: close`)
+
+1. `run company.py --dir <folder> close <id> <rejected|offer|accepted|withdrawn|paused> --stage <ref> --text "<one line from their email>"` — the stage gets its result, every other open stage is cancelled, the log gets the decision.
+2. On a rejection or withdrawal: offer with buttons "Hide this company's topics (recommended)" / "Keep them" → `outline.py hide --company <id>`. Marks and lessons stay; general topics are untouched.
+3. Offer the debrief while details are fresh — the questions they asked are the best material for the next company. The person may decline; do not push.
+4. Offer a short reply (see "Letters").
 
 ## Two ways of input
 
@@ -78,6 +105,10 @@ Based on `weak_topics`:
 - asked questions accumulate in the company's bank and are shown on the page when preparing for the next stage at that company.
 
 Before the next stage at a company, build the "For stage X at Y" screen: what happened at previous stages, what HR said, weak topics, questions to ask them for this stage (`questions.*` from the profile).
+
+## Preparing for a stage (`mode: prepare`)
+
+Follow [references/stage-playbooks.md](../references/stage-playbooks.md) for the stage type: which groups to build (tagged with the company), what to drill out loud, the checklist for the day before. Show the plan as buttons by day until the stage; one or two practice sessions out loud (english module, `mode: drill`) matter more than one more lesson. The evening before, one message with the final checklist from the playbook.
 
 ## Page
 

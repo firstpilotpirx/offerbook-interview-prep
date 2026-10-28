@@ -8,7 +8,7 @@
 id: backend
 title: Backend developer
 title_ru: Backend-разработчик
-version: 5
+version: 6
 extends: base
 description: >
   Server-side development: language and platform, frameworks, databases, APIs, service communication,
@@ -163,6 +163,21 @@ stages:
             expand_from: messaging
             when: { answer: { messaging: [kafka, rabbitmq, sqs, nats] } }
           - { id: tech.services.cache, title: Caching, title_ru: Кэширование, priority: 1 }
+          - id: tech.services.ratelimit
+            title: Rate limiting
+            title_ru: Rate limiting
+            summary: "algorithms, where the state lives, layered quotas"
+            summary_ru: "алгоритмы, где хранить состояние, многоуровневые квоты"
+            priority: 2
+            children:
+              - { id: tech.services.ratelimit.token-bucket, title: Token bucket, summary: "average rate plus a burst up to capacity; two numbers per key", summary_ru: "средний темп и burst до capacity; два числа на ключ", priority: 1 }
+              - { id: tech.services.ratelimit.leaky-bucket, title: Leaky bucket, summary: "a queue drained at a constant rate; smoothing, not rejecting", summary_ru: "очередь с постоянной скоростью выхода; сглаживание, а не отказ", priority: 2 }
+              - { id: tech.services.ratelimit.fixed-window, title: Fixed window counter, title_ru: Fixed window, summary: "one counter per window; up to 2× at the boundary", summary_ru: "один счётчик на окно; до 2× на стыке окон", priority: 1 }
+              - { id: tech.services.ratelimit.sliding-log, title: Sliding window log, title_ru: Sliding window log, summary: "a timestamp per request; exact but memory grows with the limit", summary_ru: "метка на каждый запрос; точно, но память растёт с лимитом", priority: 2 }
+              - { id: tech.services.ratelimit.sliding-counter, title: Sliding window counter, title_ru: Sliding window counter, summary: "two counters, the previous one weighted; almost exact and cheap", summary_ru: "два счётчика, предыдущий с весом; почти точно и дёшево", priority: 1 }
+              - { id: tech.services.ratelimit.state, title: Where the state lives, title_ru: Где хранить состояние, summary: "process memory, Redis with Lua, Memcached add + incr; several instances", summary_ru: "память процесса, Redis с Lua, Memcached add + incr; несколько инстансов", priority: 1 }
+              - { id: tech.services.ratelimit.direction, title: Inbound and outbound limits, title_ru: Входящие и исходящие лимиты, summary: "reject to protect us, wait to respect them; a decision service", summary_ru: "отказ, чтобы защитить себя, ожидание, чтобы не превысить чужой лимит; сервис-решатель", priority: 2 }
+              - { id: tech.services.ratelimit.layers, title: Layered quotas, title_ru: Многоуровневые квоты, summary: "second, hour, day, month in one atomic check; durable usage for billing", summary_ru: "секунда, час, сутки, месяц одной атомарной проверкой; надёжный учёт для биллинга", priority: 2 }
           - { id: tech.services.consistency, title: Data consistency, title_ru: Согласованность данных, priority: 1 }
           - { id: tech.services.failures, title: Partial failures, title_ru: Частичные сбои, priority: 2 }
 
@@ -189,6 +204,31 @@ stages:
         title_ru: Алгоритмы
         priority: 2
         when: { answer: { algorithms: ["yes", unknown] } }
+      - id: practice.patterns
+        title: Coding problem types
+        title_ru: Типы задач на алгоритмы
+        summary: "the types real companies ask, with the signal, a template and pitfalls"
+        summary_ru: "типы, которые спрашивают реальные компании: сигнал, шаблон, ловушки"
+        priority: 2
+        when: { answer: { algorithms: ["yes", unknown] } }
+        children:
+          - { id: practice.patterns.recognize, title: Recognising the type in 30 seconds, title_ru: Узнать тип задачи за 30 секунд, priority: 1 }
+          - { id: practice.patterns.hash, title: Hash map, title_ru: Хэш-таблица, priority: 1 }
+          - { id: practice.patterns.two-pointers, title: Two pointers, title_ru: Два указателя, priority: 1 }
+          - { id: practice.patterns.window, title: Sliding window, title_ru: Скользящее окно, priority: 1 }
+          - { id: practice.patterns.stack, title: Stack and monotonic stack, title_ru: Стек и монотонный стек, priority: 1 }
+          - { id: practice.patterns.binary-search, title: Binary search, title_ru: Бинарный поиск, priority: 1 }
+          - { id: practice.patterns.graphs, title: "BFS, DFS and topological sort", title_ru: "BFS, DFS и топологическая сортировка", priority: 1 }
+          - { id: practice.patterns.heap, title: Heap and top K, title_ru: Куча и top K, priority: 1 }
+          - { id: practice.patterns.design, title: Data structures with O(1) operations, title_ru: Структуры данных с O(1), summary: "LRU cache, randomized set, time-based store", summary_ru: "LRU-кэш, randomized set, хранилище по времени", priority: 1 }
+          - { id: practice.patterns.trees, title: Trees, title_ru: Деревья, priority: 2 }
+          - { id: practice.patterns.intervals, title: Intervals, title_ru: Интервалы, priority: 2 }
+          - { id: practice.patterns.prefix, title: Prefix sums, title_ru: Префиксные суммы, priority: 2 }
+          - { id: practice.patterns.lists, title: Linked lists, title_ru: Связные списки, priority: 2 }
+          - { id: practice.patterns.dp, title: Basic dynamic programming, title_ru: Базовое DP, priority: 2 }
+          - { id: practice.patterns.greedy, title: Greedy, title_ru: Жадные алгоритмы, priority: 3 }
+          - { id: practice.patterns.backtracking, title: Backtracking, title_ru: Бэктрекинг, priority: 3 }
+          - { id: practice.patterns.strings, title: Strings and parsing, title_ru: Строки и парсинг, priority: 3 }
       - { id: practice.sql, title: SQL problems, title_ru: SQL-задачи, priority: 2 }
       - { id: practice.debug, title: Debugging, title_ru: Отладка, priority: 3 }
       - { id: practice.tests, title: Writing tests for code, title_ru: Написать тесты к коду, priority: 3 }
