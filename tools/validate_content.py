@@ -114,10 +114,19 @@ def main() -> int:
         except yaml.YAMLError as e:
             err("outline.yaml", f"YAML does not parse: {e}")
             o = {}
+        company_ids = {x.parent.name for x in (root / "prep" / "companies").glob("*/company.yaml")}
         for n in walk(o.get("nodes")):
             if n["id"] in outline_ids:
                 err("outline.yaml", f"id «{n['id']}» is duplicated")
             outline_ids.add(n["id"])
+            # a word instead of 1/2/3 silently drops the topic out of every priority filter and counter
+            if "priority" in n and n["priority"] not in (1, 2, 3):
+                err("outline.yaml", f"«{n['id']}»: priority {n['priority']!r} — must be 1, 2 or 3")
+            for c in n.get("companies") or []:
+                if c not in company_ids:
+                    err("outline.yaml", f"«{n['id']}»: company «{c}» does not exist")
+            if len(n.get("children") or []) > 25:
+                warn("outline.yaml", f"«{n['id']}»: {len(n['children'])} children — split into groups of up to 25")
             if not n.get("children") and n.get("kind", "topic") == "topic":
                 leaves.add(n["id"])
         skipped = set((o.get("state") or {}).get("skip", []))
@@ -157,9 +166,19 @@ def main() -> int:
                 age = (today - d).days
                 if age > args.max_age:
                     warn(f.name, f"last_verified {d} — {age} days ago, re-check the facts")
-            for bid in blocks:
+            for bid, body in blocks.items():
                 if outline_ids and bid not in outline_ids:
                     err(f.name, f"block «{bid}» not found in the outline")
+                # one topic = one idea you can tick off; a wall of text or a wide table is studied by nobody
+                words = len(re.findall(r"\w+", re.sub(r"```.*?```", " ", body, flags=re.S)))
+                if words > 1400:
+                    warn(f.name, f"«{bid}»: {words} words — split it into child topics (one idea each)")
+                for tbl in re.findall(r"(?:^\|.*\|[ \t]*\n)+", body, flags=re.M):
+                    rows = [r for r in tbl.strip().splitlines() if not re.fullmatch(r"\|[\s:|-]+\|", r.strip())]
+                    cols = rows[0].count("|") - 1 if rows else 0
+                    if cols > 4 or len(rows) > 13:
+                        warn(f.name, f"«{bid}»: a table of {len(rows) - 1} rows × {cols} columns — use a list "
+                                     "or split into topics; wide tables are unreadable on a phone")
         if P not in parsed:
             err(name, f"no .{P}.md — {P} is the main language, every section starts there")
             continue

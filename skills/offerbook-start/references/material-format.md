@@ -43,6 +43,16 @@ Required by `depth.py`: priority 1–2 — In short, How it works, Interview Q&A
 
 **EN companion** (a short English version next to a lesson in another language, for interviews in English): `### In short` (the gist, how to say it), `### Interview Q&A` (questions in the same format), optionally `### Key phrases`. It is not a translation of the lesson but what is said out loud.
 
+## One topic — one checkbox
+
+The person studies by ticking topics. A topic that holds a whole subject is never ticked, and a big table cannot be read on a phone. People asked for exactly this: "break it into items so I can tick each one".
+
+- **One topic = one idea that can be learned and ticked in 10–20 minutes.** If a lesson grows past ~1,000 words or covers several independent things (five algorithms, ten libraries, an environment checklist), make it a group: one child topic per item, each with its own short lesson. `validate_content.py` warns from 1,400 words.
+- **No wide tables in lessons.** Up to 3–4 columns and ~12 rows; anything bigger becomes a list or separate topics. A comparison of options is fine as a small table in "When to choose what"; a catalog is not.
+- **A checklist is topics, not a table.** "Install Go", "Pull the images", "Test screen sharing" — each its own topic with how to check it; the group summary says what the list is for.
+- **Every group of practice items starts with an intro topic** (`<group>.intro`, priority 1): what the group is for, how to work through it, and **why some items are must and others optional** — the person will ask.
+- A reference (a set of algorithms, a library catalog, a stage format) is written as a group too: one topic per item with the same short fields in the same order, so items compare at a glance.
+
 ## Rules
 
 - Length benchmark — the working portal with 404 topics: median lesson ~330 words, 500+ for must-know topics; almost every one has an "In the interview" part — a ready-to-say formulation.

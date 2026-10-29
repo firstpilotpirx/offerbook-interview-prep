@@ -69,7 +69,7 @@ run serve.py --dir <folder>               # prints PREP_URL http://localhost:<po
 
 The page polls the server itself and reloads in place when the build changes. Checkmarks, vocabulary, trainer and the "Interviews" form are written by the server straight into the folder: `prep/page-state.json`, `trainer-state.json`, `vocab-state.json`, `inbox.json`.
 
-**Without a folder on the computer (regular chat, cloud session):** publish `dist/artifact.html` with the Artifact tool with `capabilities: {"db": {}, "downloads": true}`, then `run state.py --dir <folder> session set mode=artifact page_url=<link>`. After every step, republish to the same artifact.
+**Without a folder on the computer (regular chat, cloud session):** publish `dist/artifact.html` with the Artifact tool with `capabilities: {"db": {}, "downloads": true}`, then `run state.py --dir <folder> session set mode=artifact page_url=<link>`. After every step, republish to the same artifact — always passing `page_url`, never as a new artifact: a second copy has an empty database and the person sees their progress gone. Another session may have published in between: if the publish is refused, read the live version, merge your change into it and publish again. If the person does not see a change, the app panel is showing an old copy — tell them to close the panel and reopen the artifact.
 
 ## 2. Syncing with the page
 
@@ -118,13 +118,13 @@ Read `modules/<module>.md` and execute it with the `args` from the chosen option
 | wizard | first-run wizard; change one answer (`mode: edit`) | [modules/wizard.md](modules/wizard.md) |
 | resume | resume: review, from scratch, tailored to a job posting (`mode: tailor`); cover letter (`mode: cover`) | [modules/resume.md](modules/resume.md) |
 | scope | questionnaire for the profile (usually from the wizard) | [modules/scope.md](modules/scope.md) |
-| outline | topic tree; plan edits (`mode: update`) | [modules/outline.md](modules/outline.md) |
+| outline | topic tree; plan edits (`mode: update`); hide a closed company's topics (`mode: hide`) | [modules/outline.md](modules/outline.md) |
 | build | materials, building and publishing the page; study session by topic (`mode: study`) | [modules/build.md](modules/build.md) |
-| english | English texts, vocabulary, trainer | [modules/english.md](modules/english.md) |
-| track | interviews: logging, preparing for a stage, debrief, import from the form | [modules/track.md](modules/track.md) |
+| english | English texts, vocabulary, trainer; speaking drill before a stage (`mode: drill`) | [modules/english.md](modules/english.md) |
+| track | interviews: logging, slots and letters, preparing for a stage, debrief, decision (`mode: close`), import from the form | [modules/track.md](modules/track.md) |
 | upgrade | new plugin version: what's new, backup, data migration, new sections, rebuild; rollback from backup | [modules/upgrade.md](modules/upgrade.md) |
 
-Formats: [references/page-format.md](references/page-format.md), [references/trainer-format.md](references/trainer-format.md), [references/cv-format.md](references/cv-format.md).
+Formats: [references/page-format.md](references/page-format.md), [references/trainer-format.md](references/trainer-format.md), [references/cv-format.md](references/cv-format.md). How to prepare for each stage type (screening, hiring manager, coding problems, an AI-assisted round, design, final): [references/stage-playbooks.md](references/stage-playbooks.md).
 
 Run long work (materials for dozens of topics) as a task list and rebuild the page after each batch — the person sees it filling up.
 
@@ -163,6 +163,9 @@ Files in `prep/` and material skeletons are **never edited by hand** — only by
 | Mode, page address, build timestamp | `run state.py session set mode=… page_url=… built_at=now` |
 | Progress from the page → files and back | `run state.py page import …` · `page export` · `page counts` |
 | Company, stage, interview question, HR call, status | `run company.py add / stage / question / log / set / contact / vacancy` |
+| Final decision: rejection, offer, withdrawal (open stages cancelled) | `run company.py close <id> rejected --stage tech-1 --text "…"` |
+| Interview slots in the person's time zone | `run slots.py --from Europe/London --to <zone> "2026-11-12 16:30" …` |
+| Plan: add or change a topic, tag a company, hide and show groups, check | `run outline.py add / set / tag / untag / hide / unhide / hidden / check` |
 | Skeleton for a lesson, case, story, answer | `run content.py scaffold <section> <topic id> [--kind …]` |
 | Which topics have no material | `run content.py missing [--priority 1]` |
 | Record a fact-check · which lessons are not checked | `run content.py verify <topic id> --source <url> …` · `content.py unverified [--priority 1]` |

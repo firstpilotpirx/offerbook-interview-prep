@@ -109,6 +109,71 @@ def slim(nodes):
     return res
 
 
+def visible_tree(nodes, hidden_out: list, depth: int = 0) -> list:
+    """Drops nodes marked `hidden: true` (outline.py hide) with their subtree; lists them for the page note."""
+    res = []
+    for n in nodes or []:
+        if n.get("hidden"):
+            hidden_out.append({"id": n["id"], "title": n.get("title", n["id"]),
+                               **{k: v for k, v in n.items() if re.fullmatch(r"title_[a-z]{2}", k)},
+                               "count": sum(1 for _ in leaves([n]))})
+            continue
+        x = dict(n)
+        if n.get("children"):
+            x["children"] = visible_tree(n["children"], hidden_out, depth + 1)
+        res.append(x)
+    return res
+
+
+def leaves(nodes):
+    for n in nodes or []:
+        if n.get("children"):
+            yield from leaves(n["children"])
+        else:
+            yield n
+
+
+def tag_index(nodes, companies: list, ui: dict, P: str) -> dict:
+    """Stage and company chips for the plan filter.
+
+    stage — the top-level section of a topic (every cross-cutting section shares one chip, "My experience
+    and language"); company — `companies: [<company id>]` on a node, inherited by its whole subtree.
+    Only leaves are listed: groups are shown when any leaf passes."""
+    names = {c.get("id"): c.get("name", c.get("id")) for c in companies}
+    tmap, used_st, used_co = {}, [], []
+
+    def walk(ns, stage, cos):
+        for n in ns or []:
+            here = sorted(set(cos) | set(n.get("companies") or []))
+            if n.get("children"):
+                walk(n["children"], stage, here)
+            else:
+                tags = [stage] + [f"co:{c}" for c in here]
+                tmap[n["id"]] = tags
+                for c in here:
+                    if c not in used_co:
+                        used_co.append(c)
+
+    defs = []
+    for top in nodes or []:
+        st = "stage:mine" if top.get("kind") == "cross" else f"stage:{top['id']}"
+        walk([top], st, top.get("companies") or [])
+        if st not in used_st:
+            used_st.append(st)
+            if st == "stage:mine":
+                defs.append({"id": st, "group": "stage", "label": ui.get(P if P in ui else "en", ui["en"]).get("tagsMine", "Mine"),
+                             "label_en": ui["en"].get("tagsMine", "Mine")})
+            else:
+                d = {"id": st, "group": "stage", "label": top.get(f"title_{P}") or top.get("title", top["id"]),
+                     "label_en": top.get("title_en") or top.get("title", top["id"])}
+                defs.append(d)
+    mine = [d for d in defs if d["id"] == "stage:mine"]
+    defs = [d for d in defs if d["id"] != "stage:mine"] + mine
+    for c in used_co:
+        defs.append({"id": f"co:{c}", "group": "co", "label": names.get(c, c), "label_en": names.get(c, c)})
+    return {"map": tmap, "defs": defs}
+
+
 def report(companies: list) -> dict:
     today = dt.date.today()
     upcoming, weak = [], {}
@@ -243,6 +308,9 @@ def main() -> int:
 
     # everything is optional: the page builds from minute one and fills in as you go
     outline = ld(root / "prep" / "outline.yaml", {}) or {}
+    hidden = []
+    nodes = visible_tree(outline.get("nodes"), hidden)
+    hidden_ids = {x["id"] for x in hidden}
     deck = ld(root / "prep" / "words.yaml", None)
     companies = [ld(cp, {}) for cp in sorted((root / "prep" / "companies").glob("*/company.yaml"))]
 
@@ -296,8 +364,14 @@ def main() -> int:
                 "Tick what you have done — progress saves itself.")
     intro = args.intro or (intro_ru if P == "ru" else intro_en)
     title = args.title if (args.title != ap.get_default("title") or P == "ru") else args.title_en
+    ui_strings = json.loads(I18N.read_text(encoding="utf-8"))
+    content = load_content(root, LANGS)
+    if hidden_ids:   # lessons of hidden groups stay in content/*.md but are not shipped with the page
+        def under_hidden(i):
+            return any(i == h or i.startswith(h + ".") for h in hidden_ids)
+        content = {l: {k: v for k, v in blocks.items() if not under_hidden(k)} for l, blocks in content.items()}
     data = {
-        "ui": json.loads(I18N.read_text(encoding="utf-8")),
+        "ui": ui_strings,
         "tracks": tracks, "lang": P, "langs": LANGS, "lang_names": {l: lg.NAMES.get(l, l.upper()) for l in LANGS}, "i18n": i18n,
         "eyebrow": eyebrow, "heading": args.heading or title, "intro": intro, "intro_en": intro_en if P != "en" else None,
         "heading_en": args.title_en if not args.heading else None,
@@ -307,8 +381,10 @@ def main() -> int:
         "build": {"built": dt.datetime.now().isoformat(timespec="seconds"), "profile": prof,
                   "profile_version": outline.get("profile_version")},
         "setup": setup_state(root, outline, companies, deck, P),
-        "outline": slim(outline.get("nodes")),
-        "content": load_content(root, LANGS),
+        "outline": slim(nodes),
+        "hidden": hidden,
+        "tags": tag_index(nodes, companies, ui_strings, P),
+        "content": content,
         "verified": verified_map(root),
         "deck": deck,
         "companies": companies,

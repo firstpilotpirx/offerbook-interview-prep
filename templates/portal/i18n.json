@@ -268,7 +268,13 @@
     "ttsNext": "Автопереход",
     "sec": "с",
     "ttsPauseOk": "Пауза после верного",
-    "ttsPauseBad": "Пауза после ошибки"
+    "ttsPauseBad": "Пауза после ошибки",
+    "tagsCompany": "Компания",
+    "tagsStage": "Этап",
+    "tagsClear": "сбросить",
+    "tagsMine": "Мой опыт и язык",
+    "hiddenGroups": "Скрыто из плана",
+    "hiddenHow": "Отметки сохранены; чтобы вернуть, попросите Claude показать группу."
   },
   "en": {
     "plan": "Plan",
@@ -539,6 +545,12 @@
     "ttsNext": "Auto-advance",
     "sec": "s",
     "ttsPauseOk": "Pause after a right answer",
-    "ttsPauseBad": "Pause after a mistake"
+    "ttsPauseBad": "Pause after a mistake",
+    "tagsCompany": "Company",
+    "tagsStage": "Stage",
+    "tagsClear": "clear",
+    "tagsMine": "My experience and language",
+    "hiddenGroups": "Hidden from the plan",
+    "hiddenHow": "Marks are kept; ask Claude to show a group again."
   }
 }

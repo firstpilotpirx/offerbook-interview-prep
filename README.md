@@ -12,9 +12,10 @@
 - **Your stories and answers.** STAR stories from your own experience and ready-to-say answers ("tell me about yourself", "why are you leaving", salary expectations).
 - **English trainer built from your own material.** Frequency analysis of your lessons, stories and answers; quick "check what you know" rounds by frequency band; a spaced-repetition trainer that asks every word four ways (pick the English, pick the translation, recall the English, recall the translation); the most important words come first, in decks of 50. Words and examples are pronounced with the browser's built-in voices (no keys or subscriptions).
 - **Resume and cover letters.** A one-column A4 resume in HTML, Markdown and PDF, a lint check against the vacancy, and a tailored resume and cover letter per company.
-- **Interview tracker.** Companies, stage timelines, HR conversations, post-interview debriefs. Topics where you struggled go back up in the plan.
+- **Interview tracker.** Companies, stage timelines, HR conversations, post-interview debriefs. Topics where you struggled go back up in the plan. Slots from an invitation are converted to your time zone exactly, short replies to the recruiter come as drafts, and a closed process takes its own topics off the plan.
+- **A playbook for every stage.** Recruiter screening (the 15 likely questions, the pitch, money), the hiring manager round (each of your systems told in the same 8 steps), coding problems (the problem types real companies ask, a must and an optional tier), the AI-assisted round (reading the company's format page, an interview mode for your own coding agent, the environment checklist) and a reference for the topic of the practical task. Before a stage — a speaking drill: a question, your answer out loud, corrections, "Left: N".
 - **Study tracks with daily goals.** Theory, coding problems, system design, soft skills and words — each with a ring for today, the week, its own daily goal and a forecast; the plan shows the date you are ready by the slowest track.
-- **One live page.** Plan tree with progress bars on every node, filters, table of contents, vocabulary, trainer and interviews — rebuilt as you go, with your marks kept across rebuilds and plugin updates.
+- **One live page.** Plan tree with progress bars on every node, filters by priority, stage and company, table of contents, vocabulary, trainer and interviews — rebuilt as you go, with your marks kept across rebuilds and plugin updates. Sections you no longer need are hidden, not deleted.
 
 ## Install
 
@@ -88,7 +89,7 @@ skills/
   offerbook-start/       /offerbook-start — the hub: offers the next step as buttons after every step
     SKILL.md
     modules/             wizard · resume · scope · outline · build · english · track · upgrade
-    references/          page-format · material-format · trainer-format · cv-format
+    references/          page-format · material-format · trainer-format · cv-format · stage-playbooks
   offerbook-next/        /offerbook-next — short "what next?" entry, straight to the hub menu
   offerbook-update/      /offerbook-update — new version: what's new, backup, migration, rollback
 profiles/                specialty profiles (base → backend), stable topic ids, renames
@@ -102,6 +103,8 @@ tools/
   next_steps.py          hub menu computed from your prep files
   build_page.py          builds the page from prep/ and content/
   serve.py               local page server (localhost only)
+  outline.py             plan edits: add, tag a company, hide and show groups, checks
+  company.py, slots.py   interview tracker; invitation slots in your time zone
   build_cv.py, cv_lint.py            resume: HTML / PDF / Markdown, check against the vacancy
   rank_words.py, words.py            vocabulary candidates and deck
   migrate.py, backup.py, whats_new.py  updates without losing progress

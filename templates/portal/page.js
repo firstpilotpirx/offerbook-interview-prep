@@ -329,7 +329,52 @@ function trainerSummary(){
 }
 
 /* ---------- Plan tab ---------- */
-function filtering(){ return !!(ui.q || ui.status !== 'all' || ui.pri || ui.vac || ui.track); }
+/* Stage and company chips (D.tags, built by build_page.py from the outline and companies).
+   Inside one group the chips are OR, between groups AND. A company chip keeps the general topics
+   (no company of their own) — a topic added later without a company never disappears from the filter. */
+var TAGS = D.tags || {map: {}, defs: []}, TAGMAP = TAGS.map || {}, TAGDEFS = TAGS.defs || [], TAGBOX = null;
+ui.tags = (function(v){ return Array.isArray(v) ? v.filter(function(t){ return TAGDEFS.some(function(d){ return d.id === t; }); }) : []; })(lsGet('prep.tags', []));
+function tagsOn(){ return ui.tags.length > 0; }
+function tagOk(n){
+  if (!tagsOn()) return true;
+  var mine = TAGMAP[n.id] || [], groups = {};
+  ui.tags.forEach(function(t){ var g = t.split(':')[0]; (groups[g] = groups[g] || []).push(t); });
+  for (var g in groups){
+    var hit = groups[g].some(function(t){ return mine.indexOf(t) >= 0; });
+    if (!hit && g === 'co') hit = !mine.some(function(t){ return t.indexOf('co:') === 0; });   // general topic
+    if (!hit) return false;
+  }
+  return true;
+}
+function tagLabel(d){ return ui.lang !== P && d['label_' + ui.lang] ? d['label_' + ui.lang] : (ui.lang === 'en' && d.label_en ? d.label_en : d.label); }
+function tagBar(){
+  var Lx = L(), box = el('div', 'tagbar');
+  [['co', Lx.tagsCompany], ['stage', Lx.tagsStage]].forEach(function(g){
+    var defs = TAGDEFS.filter(function(d){ return d.group === g[0]; });
+    if (defs.length < (g[0] === 'co' ? 1 : 2)) return;
+    var row = el('div', 'tagrow'); row.appendChild(el('span', 'tagrow-t', g[1]));
+    defs.forEach(function(d){
+      var b = el('button', 'tagchip g-' + g[0], tagLabel(d)); b.type = 'button'; b.setAttribute('data-tag', d.id);
+      b.onclick = function(){ var i = ui.tags.indexOf(d.id); if (i >= 0) ui.tags.splice(i, 1); else ui.tags.push(d.id); lsSet('prep.tags', ui.tags); tagPaint(); drawTree(); };
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+  });
+  if (!box.children.length) return null;
+  var cl = el('button', 'tagchip clear', '× ' + Lx.tagsClear); cl.type = 'button';
+  cl.onclick = function(){ ui.tags = []; lsSet('prep.tags', ui.tags); tagPaint(); drawTree(); };
+  box.appendChild(cl); TAGBOX = box; tagPaint();
+  return box;
+}
+function tagPaint(){
+  if (!TAGBOX) return;
+  Array.prototype.forEach.call(TAGBOX.querySelectorAll('.tagchip[data-tag]'), function(b){
+    var on = ui.tags.indexOf(b.getAttribute('data-tag')) >= 0; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+  var cl = TAGBOX.querySelector('.tagchip.clear'); if (cl) cl.hidden = !tagsOn();
+}
+/* searching() opens every card with a match; chips only narrow the tree and keep cards as they were */
+function searching(){ return !!(ui.q || ui.status !== 'all' || ui.pri || ui.vac || ui.track); }
+function filtering(){ return searching() || tagsOn(); }
 function matches(n){
   var sk = !!S.skip[n.id], dn = !!S.done[n.id];
   if (ui.status === 'todo' && (dn || sk)) return false;
@@ -338,6 +383,7 @@ function matches(n){
   if (ui.pri && (n.priority || 2) !== ui.pri) return false;
   if (ui.vac && n.origin !== 'vacancy') return false;
   if (ui.track && trackOf(n) !== ui.track) return false;
+  if (!tagOk(n)) return false;
   if (!ui.q) return true;
   var q = ui.q.toLowerCase();
   var txt = [n.title, n.title_en, n.summary, n.summary_en, (CONTENT[P][n.id] || ''), (CONTENT.en[n.id] || '')].join(' ').toLowerCase();
@@ -382,6 +428,8 @@ function renderPlan(main){
   var intro = ui.lang === 'en' && D.intro_en ? D.intro_en : D.intro; if (intro) hero.appendChild(el('p', 'intro', intro));
   if (st.all){ hero.appendChild(el('p', 'note', Lx.matReady + ' ' + st.withMat + ' ' + Lx.of + ' ' + st.all + ' ' + Lx.topicsWord + '.'));
     if (st.skipped) hero.appendChild(el('p', 'note', Lx.excluded + ': ' + st.skipped + ' (' + Lx.notCounted + ').')); }
+  if ((D.hidden || []).length){   // groups taken off the plan by `outline.py hide`: data and marks kept, back on request
+    hero.appendChild(el('p', 'note hidden-note', Lx.hiddenGroups + ': ' + D.hidden.map(function(h){ return tt(h) + ' (' + h.count + ')'; }).join(', ') + '. ' + Lx.hiddenHow)); }
   main.appendChild(hero);
   if (!OUTLINE.length){ placeholder(main, Lx.phPlan); return; }
   /* three stats cards */
@@ -446,6 +494,7 @@ function renderPlan(main){
   f.appendChild(segs('pri', [[0, Lx.fAny], [1, Lx.fMain], [2, Lx.fImportant], [3, Lx.fOptional]]));
   var vt = el('button', 'vac-toggle', Lx.fVac); vt.type = 'button'; vt.setAttribute('aria-pressed', String(ui.vac));
   vt.onclick = function(){ ui.vac = !ui.vac; vt.setAttribute('aria-pressed', String(ui.vac)); drawTree(); }; f.appendChild(vt);
+  var tbar = tagBar(); if (tbar) f.appendChild(tbar);
   if (ui.track){ var atr = TRACKS.filter(function(x){ return x.id === ui.track; })[0];
     var tb = el('button', 'vac-toggle', '× ' + (atr ? trackName(atr) : ui.track)); tb.type = 'button'; tb.setAttribute('aria-pressed', 'true');
     tb.onclick = function(){ ui.track = null; rerenderKeepScroll(); }; f.appendChild(tb); }
@@ -492,7 +541,7 @@ function drawTree(){
       if (toc) toc.appendChild(el('h4', null, tt(card.top)));
     }
     var p = cardProgress(card), full = p.total && p.done === p.total;
-    var open = f || !!S.expanded[card.id];
+    var open = searching() || !!S.expanded[card.id];
     var sec = el('section', 'pcard' + (open ? ' open' : '') + (full ? ' full' : '')); sec.id = 'card-' + card.id;
     var hd = el('button', 'phead'); hd.type = 'button'; hd.setAttribute('aria-expanded', String(open));
     var pt = el('span', 'pt', card.title); if (card.node !== card.top) badges(card.node, pt);
@@ -506,7 +555,7 @@ function drawTree(){
     // Toggle in place: never rebuild the tree from inside the click (the clicked button would be removed
     // from the page during its own handler — WebKit then shows nothing).
     hd.addEventListener('click', function(){
-      if (tooSoon(hd) || filtering()) return;   // while filtering every card is open anyway
+      if (tooSoon(hd) || searching()) return;   // while searching every card is open anyway
       var o = !S.expanded[card.id];
       if (o){ S.expanded[card.id] = true; fill(); } else delete S.expanded[card.id];
       body.hidden = !o; sec.classList.toggle('open', o); hd.setAttribute('aria-expanded', String(o));
@@ -522,7 +571,7 @@ function drawNode(n, depth){
   if (isLeaf(n) && n.kind !== 'stage' && n.kind !== 'cross') return drawLeaf(n);
   var wrap = el('section', 'node lvl' + depth);
   var row = el('div', 'row');
-  var open = filtering() ? true : !S.collapsed[n.id];
+  var open = searching() ? true : !S.collapsed[n.id];
   var caret = el('button', 'caret', '▸'); caret.type = 'button'; caret.setAttribute('aria-expanded', String(open)); caret.setAttribute('aria-label', tt(n));
   var t = el('div', 'ntitle');
   if (n.kind === 'stage' && n.order) t.appendChild(el('span', 'stage-no', String(n.order).padStart(2, '0')));
@@ -540,7 +589,7 @@ function drawNode(n, depth){
   wrap.appendChild(kids);
   // The toggle is the whole group row: arrow, name, bar, counter, empty space. Done in place, no tree rebuild.
   function toggle(e){
-    if ((e && tooSoon(row)) || filtering()) return;
+    if ((e && tooSoon(row)) || searching()) return;
     open = !open;
     if (open){ delete S.collapsed[n.id]; fill(); } else S.collapsed[n.id] = true;
     kids.hidden = !open; caret.setAttribute('aria-expanded', String(open)); row.setAttribute('aria-expanded', String(open)); wrap.classList.toggle('open', open);
@@ -559,7 +608,13 @@ function drawLeaf(n){
   var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!S.done[n.id]; cb.disabled = !!S.skip[n.id]; cb.setAttribute('aria-label', tt(n));
   cb.onchange = function(){ if (cb.checked){ S.done[n.id] = NOW(); if (!S.startedAt && Object.keys(S.done).length === 1) S.startedAt = NOW(); } else delete S.done[n.id]; save('S'); rerenderKeepScroll(); };
   var t = el('div', 'ntitle'); t.appendChild(el('b', null, tt(n))); badges(n, t);
-  var ask = ui.lang !== P && n['summary_' + ui.lang] ? n['summary_' + ui.lang] : n.summary; if (ask) t.appendChild(el('span', 'ask', ask));
+  var ask = ui.lang !== P && n['summary_' + ui.lang] ? n['summary_' + ui.lang] : n.summary;
+  if (ask && /^https?:\/\/\S+$/.test(ask.trim())){   // a bare link (a LeetCode task, a doc page): clickable, short
+    var sp = el('span', 'ask'), a = el('a', 'ask-link', ask.trim().replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''));
+    a.href = ask.trim(); a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.addEventListener('click', function(e){ e.stopPropagation(); });
+    sp.appendChild(a); t.appendChild(sp);
+  } else if (ask) t.appendChild(el('span', 'ask', ask));
   var acts = el('div', 'leaf-acts');
   function actBtn(label, icon){ var b = el('button'); b.type = 'button'; b.setAttribute('aria-label', label); b.title = label;
     b.appendChild(el('span', 'full', label)); b.appendChild(el('span', 'short', icon)); return b; }

@@ -181,6 +181,22 @@ It is embedded in the prep page as a separate tab or lives as a separate page. M
 - a composite bar on every deck: learned / consolidating / learning / not started;
 - a direction switch EN → RU / RU → EN and an interface-language switch.
 
+## Speaking drill (`mode: drill`)
+
+Before a scheduled stage, practice out loud beats reading. The person speaks (voice is fine), the agent asks and corrects. Tested over several stages; what worked:
+
+1. **Pick the questions** for the stage from references/stage-playbooks.md and the person's materials: the likely questions, the stories, the key phrases. 10–15 per session.
+2. **Two directions**, the person chooses with buttons:
+   - *Question in English* — format of each item: the question in English; one line of translation into the explanation language; after the person answers — a reference answer in English in their own words.
+   - *Situation in the explanation language → answer in English* — the agent describes what to say in the person's language, the person says it in English. Trains producing, not recognising.
+3. **One item per message.** After each answer: what was good (one line), the corrected sentence(s), the recurring mistake if it repeats, then the next item. Always end with **"Left: N"** so the person knows how much is left.
+4. **Correct, do not rewrite.** Keep the person's words and structure; fix grammar, wrong words and false friends; replace a cliché with a plain phrase. If the person asked for a style (no contractions, simple words, a phrase they prefer), keep it in every correction.
+5. **Keep a list of recurring errors** for this person (wrong word → right word, e.g. a word they mishear or mispronounce, "what" used for "that", a tool name said wrongly) and show it at the end; it goes into the stage's phrases topic.
+6. **Phrases to learn**: at the end, offer a short list of the phrases the person struggled with, as a topic of the stage group (one phrase per line, with a translation).
+7. **When the person changes a fact** while answering ("it was my work, not the team's", "we filtered only by contract address"), update the story or answer in `content/` right away and rebuild the page — the written version must match what they say.
+
+Do not lecture between items, do not repeat the whole answer back, do not praise every answer.
+
 ## Updating
 
 On an `update` module run: run steps 2–5 only for new blocks. Do not rewrite existing cards or change their `id` and `rank` — new words get the next `rank`s. A word no longer used anywhere is not deleted: remove it from `used_in` and keep it.

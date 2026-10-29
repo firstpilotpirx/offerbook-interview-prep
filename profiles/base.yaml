@@ -9,7 +9,7 @@
 id: base
 title: General IT profile
 title_ru: Общий IT-профиль
-version: 3
+version: 4
 abstract: true
 description: >
   Ten interview stages and five cross-cutting sections. Stages 1–3, 5, 7–10 are nearly the same
@@ -183,6 +183,9 @@ stages:
       - { id: recruiter.format, title: "Work format, relocation, time zone", title_ru: "Формат, релокация, часовой пояс", priority: 2 }
       - { id: recruiter.start, title: Start date, title_ru: Дата выхода, priority: 2 }
       - { id: recruiter.process, title: Questions about the hiring process, title_ru: Вопросы про процесс найма, priority: 2 }
+      - { id: recruiter.top-questions, title: The 15 most likely questions, title_ru: 15 самых вероятных вопросов, summary: "a 30–60 second spoken answer to each, ordered by likelihood", summary_ru: "ответ вслух на 30–60 секунд к каждому, по убыванию вероятности", priority: 1 }
+      - { id: recruiter.ai, title: AI tools in my work, title_ru: AI-инструменты в моей работе, summary: "what I use, for what, how I check the output", summary_ru: "чем пользуюсь, для чего, как проверяю результат", priority: 2 }
+      - { id: recruiter.opening, title: Opening and closing lines, title_ru: Начало и конец разговора, priority: 3 }
 
   - id: experience
     order: 3
@@ -195,6 +198,9 @@ stages:
       - { id: experience.projects, title: Key projects, title_ru: Ключевые проекты, summary: "what I did myself and what the team did", summary_ru: "что делал лично, а что команда", priority: 1 }
       - { id: experience.decisions, title: Hard decisions, title_ru: Сложные решения, summary: what I chose and why, summary_ru: что выбирал и почему, priority: 1 }
       - { id: experience.results, title: Results in numbers, title_ru: Результаты в цифрах, priority: 2 }
+      - { id: experience.system-story, title: Telling a system in 8 steps, title_ru: Рассказ о системе в 8 шагов, summary: "why → input and output → components → data flows → technologies → decisions → challenge → result and my role", summary_ru: "зачем → вход и выход → компоненты → потоки данных → технологии → решения → челлендж → результат и моя роль", priority: 1 }
+      - { id: experience.follow-ups, title: Follow-up questions on my systems, title_ru: Уточняющие вопросы по моим системам, summary: "failures, idempotency, data model, scaling, cost, monitoring", summary_ru: "сбои, идемпотентность, модель данных, масштабирование, стоимость, мониторинг", priority: 1 }
+      - { id: experience.strength, title: My strength in one sentence, title_ru: Моя сильная сторона одной фразой, summary: one sentence and one proof from a project, summary_ru: одна фраза и одно доказательство из проекта, priority: 2 }
 
   - id: tech
     order: 4
@@ -218,6 +224,20 @@ stages:
       - { id: practice.live, title: Live coding task, title_ru: Задача в реальном времени, priority: 1 }
       - { id: practice.homework, title: Take-home assignment and its defense, title_ru: Домашнее тестовое и его защита, priority: 2 }
       - { id: practice.review, title: Reviewing someone else's work, title_ru: Разбор чужой работы, priority: 3 }
+      - id: practice.ai
+        title: Coding with an AI assistant
+        title_ru: Задача с AI-ассистентом
+        summary: "a round where the assistant is allowed or required: format, what is judged, how people fail"
+        summary_ru: "этап, где ассистент разрешён или обязателен: формат, что оценивают, на чём заваливаются"
+        priority: 2
+        children:
+          - { id: practice.ai.formats, title: Formats of the AI round, title_ru: Форматы AI-этапа, summary: "own IDE and screen share, the company's platform, an unfamiliar repository", summary_ru: "своя IDE и шаринг, платформа компании, незнакомый репозиторий", priority: 1 }
+          - { id: practice.ai.rubric, title: What they judge, title_ru: Что оценивают, summary: "decomposition, narrow prompts, verification, ownership, judgment, communication", summary_ru: "декомпозиция, узкие промпты, проверка, владение кодом, суждение, коммуникация", priority: 1 }
+          - { id: practice.ai.failures, title: How people fail, title_ru: На чём заваливаются, summary: "accepted unread code, re-prompted until it worked, missed a plausible bug, a diff nobody can read", summary_ru: "принял код не читая, перепромптил до «заработало», пропустил правдоподобный баг, нечитаемый диф", priority: 1 }
+          - { id: practice.ai.mode, title: The assistant's interview mode, title_ru: Режим интервью для ассистента, summary: "a short rules block, bootstrap, map, plan, verify; the everyday kit switched off", summary_ru: "короткий блок правил, bootstrap, map, plan, verify; повседневный кит выключен", priority: 1 }
+          - { id: practice.ai.review, title: Reading the assistant's diff, title_ru: Как читать диф ассистента, summary: "in what order, what to look for, when to stop and ask", summary_ru: "в каком порядке, что искать, когда остановиться и спросить", priority: 1 }
+          - { id: practice.ai.unfamiliar-repo, title: An unfamiliar repository in 10 minutes, title_ru: Незнакомый репозиторий за 10 минут, summary: "safety scan, build and run, entry point, where the change belongs", summary_ru: "проверка безопасности, сборка и запуск, точка входа, где место изменению", priority: 2 }
+          - { id: practice.ai.environment, title: Environment and screen sharing, title_ru: Окружение и шаринг экрана, summary: "the checklist from the company's format page, tested the day before", summary_ru: "чеклист со страницы формата компании, проверен накануне", priority: 2 }
 
   - id: design
     order: 6

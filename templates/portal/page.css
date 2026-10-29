@@ -90,6 +90,15 @@ main{padding:28px 24px 96px}
 .segs button[aria-pressed="true"]{background:var(--accent);color:var(--surface);font-weight:600}
 .vac-toggle{border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);padding:9px 14px;font-size:15px;color:#8b5cf6}
 .vac-toggle[aria-pressed="true"]{background:#8b5cf6;color:#fff;border-color:#8b5cf6}
+.tagbar{display:flex;flex-direction:column;gap:6px;flex-basis:100%;width:100%;margin-top:4px}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tagrow-t{font-size:12px;color:var(--muted);min-width:84px}
+.tagchip{font:inherit;font-size:13px;line-height:1.6;padding:2px 11px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);cursor:pointer}
+.tagchip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.tagbar>.tagchip.clear{align-self:flex-start;border-style:dashed;color:var(--muted)}
+.ask-link{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.ask-link:hover{text-decoration-thickness:2px}
+.hidden-note{color:var(--muted)}
 .save-line{text-align:right;font-size:14px;color:var(--muted);min-height:20px}
 .save-line .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--done);margin-right:6px;vertical-align:1px}
 .plan-grid{display:grid;grid-template-columns:260px minmax(0,1fr);gap:40px;border-top:1px solid var(--line);padding-top:22px;margin-top:10px}
