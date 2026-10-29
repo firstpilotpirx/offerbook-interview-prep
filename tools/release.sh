@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Release script: bump version -> checks -> build zip -> git commit + tag -> push.
+# Release script: bump version -> checks -> git commit + tag -> build zip from the tag -> push.
 #
 #   bash tools/release.sh patch|minor|major|X.Y.Z [--no-push]
 #   bash tools/release.sh github     # (re)publish the GitHub release for the current version
@@ -34,9 +34,18 @@ PY
   fi && echo "• GitHub release v$V published"
 }
 
+# The zip holds only files committed at the tag: ignored and untracked files (generated resumes,
+# local notes) never reach a release.
+build_zip(){
+  mkdir -p dist; rm -f dist/offerbook-interview-prep.zip
+  git archive --format=zip -o dist/offerbook-interview-prep.zip "$1"
+  echo "  dist/offerbook-interview-prep.zip ($(du -h dist/offerbook-interview-prep.zip | cut -f1))"
+}
+
 if [ "${1:-}" = "github" ]; then
   V=$(python3 -c "import json;print(json.load(open('.claude-plugin/plugin.json'))['version'])")
-  [ -f dist/offerbook-interview-prep.zip ] || zip -qr dist/offerbook-interview-prep.zip . -x ".git/*" "dist/*" "_to_delete/*" "*/__pycache__/*" ".DS_Store"
+  git rev-parse -q --verify "refs/tags/v$V" >/dev/null || { echo "✗ no tag v$V — release it first: bash tools/release.sh $V"; exit 1; }
+  build_zip "v$V"
   gh_release "$V"; exit 0
 fi
 BUMP="${1:-}"; PUSH=1
@@ -106,23 +115,19 @@ trap 'echo "• rolled the version back to $CUR"; setver "$NEW" "$CUR"' ERR
 echo "• checks…"
 bash tools/check_all.sh >/tmp/offerbook-check.log 2>&1 || { tail -20 /tmp/offerbook-check.log; echo "✗ checks failed (full log: /tmp/offerbook-check.log)"; setver "$NEW" "$CUR"; echo "• rolled the version back to $CUR"; exit 1; }
 
-echo "• building zip…"
-find . -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null || true
-mkdir -p dist; rm -f dist/offerbook-interview-prep.zip
-zip -qr dist/offerbook-interview-prep.zip . -x ".git/*" "dist/*" "_to_delete/*" "*/__pycache__/*" ".DS_Store"
-echo "  dist/offerbook-interview-prep.zip ($(du -h dist/offerbook-interview-prep.zip | cut -f1))"
-
 trap - ERR
 if [ -d .git ]; then
   git add -A
   git commit -m "Offerbook $NEW" >/dev/null && echo "• committed"
   git tag -f "v$NEW" >/dev/null && echo "• tag v$NEW"
+  echo "• building zip from v$NEW…"
+  build_zip "v$NEW"
   if [ "$PUSH" = 1 ]; then
     git push origin HEAD && git push -f origin "v$NEW" && echo "• pushed" && gh_release "$NEW"
   else
     echo "• push skipped (--no-push): git push origin HEAD && git push origin v$NEW"
   fi
 else
-  echo "• no .git here — commit and push from your terminal"
+  echo "• no .git here — the zip is built from a git tag; release from a git checkout"; exit 1
 fi
 echo "Done: Offerbook $NEW. Upload dist/offerbook-interview-prep.zip in Customize -> Plugins, or update the plugin from GitHub."
